@@ -6,6 +6,8 @@
     "fmt:moon": "cd wasm/moonbit && moon fmt --check",
     "check:moon": "cd wasm/moonbit && moon check",
     "test:moon": "cd wasm/moonbit && moon test && moon -C tests test",
+    "test:moon:doc": "cd wasm/moonbit && moon test --doc && moon -C tests test --doc",
+    "coverage:moon": "cd wasm/moonbit && moon coverage analyze -- -f summary && moon coverage report -- -f html -o coverage-html",
     "build:moon": "cd wasm/moonbit && moon build --release",
     "build:wasm": "node scripts/build_wasm.mjs"
   }

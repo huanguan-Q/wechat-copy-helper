@@ -57,6 +57,28 @@ jobs:
       - name: Run tests
         run: npm --prefix ${{ github.workspace }} run test:moon
 
+      - name: Run doc tests (lib + tests)
+        run: npm --prefix ${{ github.workspace }} run test:moon:doc
+
+      - name: Coverage (summary+HTML, enforce >=80%)
+        run: |
+          npm --prefix ${{ github.workspace }} run coverage:moon | tee /tmp/cov.txt
+          total_line=$(grep -E 'Total:\s*[0-9]+/[0-9]+' /tmp/cov.txt | tail -n1)
+          echo "$total_line"
+          nums=$(echo "$total_line" | sed -n 's/Total: \([0-9]\+\)\/\([0-9]\+\)/\1 \2/p')
+          read covered total <<< "$nums"
+          if [ -z "$covered" ] || [ -z "$total" ]; then echo "Failed to parse coverage"; exit 1; fi
+          pct=$(awk -v c="$covered" -v t="$total" 'BEGIN { printf "%.2f", (c/t)*100 }')
+          echo "Coverage: $pct%"
+          awk -v p="$pct" 'BEGIN { if (p+0 < 80.0) { exit 1 } }' || { echo "Coverage below 80%"; exit 1; }
+
+      - name: Upload coverage HTML artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: moonbit-coverage-html
+          path: wasm/moonbit/coverage-html
+          if-no-files-found: error
+
       - name: Build release
         run: npm --prefix ${{ github.workspace }} run build:moon
 
