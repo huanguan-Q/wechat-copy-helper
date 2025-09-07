@@ -1,0 +1,120 @@
+/* 微信内容研究助手样式 */
+
+/* 确保所有元素可选择 */
+* {
+    -webkit-user-select: text !important;
+    -moz-user-select: text !important;
+    -ms-user-select: text !important;
+    user-select: text !important;
+}
+
+/* 图片可拖拽 */
+img {
+    -webkit-user-drag: auto !important;
+    -khtml-user-drag: auto !important;
+    -moz-user-drag: auto !important;
+    -o-user-drag: auto !important;
+    user-drag: auto !important;
+    pointer-events: auto !important;
+}
+
+/* 复制按钮样式 */
+.wechat-copy-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    z-index: 9999;
+    background: #1aad19;
+    color: white;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    opacity: 0.8;
+}
+
+.wechat-copy-btn:hover {
+    opacity: 1;
+    background: #179b16;
+    transform: scale(1.05);
+}
+
+/* 图片包装器样式 */
+.wechat-img-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.wechat-img-wrapper:hover .wechat-copy-btn {
+    display: block !important;
+}
+
+/* 消息提示样式 */
+.wechat-message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #1aad19;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    z-index: 10000;
+    font-size: 14px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* 全文复制按钮样式 */
+.wechat-copy-all-btn {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 9999;
+    background: #1aad19;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+}
+
+.wechat-copy-all-btn:hover {
+    background: #179b16;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+/* 移除微信原有的复制限制 */
+.rich_media_content,
+#js_content,
+[data-role="article"] {
+    -webkit-user-select: text !important;
+    -moz-user-select: text !important;
+    user-select: text !important;
+}
+
+/* 确保右键菜单可用 */
+body, html {
+    -webkit-touch-callout: default !important;
+    -webkit-user-select: text !important;
+    -khtml-user-select: text !important;
+    -moz-user-select: text !important;
+    -ms-user-select: text !important;
+    user-select: text !important;
+}

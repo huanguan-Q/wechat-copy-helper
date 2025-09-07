@@ -1,0 +1,8 @@
+{
+  "name": "wechat_copy_helper_wasm",
+  "version": "0.1.0",
+  "source": "src",
+  "description": "MoonBit core for URL normalization, referrer policy decision, and filename sanitization exposed to JS via WASM.",
+  "preferred-target": "wasm-gc",
+  "dependencies": {}
+}

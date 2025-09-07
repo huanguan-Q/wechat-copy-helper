@@ -1,0 +1,16 @@
+{
+  "is-main": true,
+  "import": [
+    { "path": "wechat_copy_helper_wasm/lib", "alias": "lib" }
+  ],
+  "link": {
+    "wasm-gc": {
+      "exports": [
+        "normalize_image_url",
+        "decide_referrer_policy",
+        "sanitize_filename"
+      ],
+      "use-js-builtin-string": true
+    }
+  }
+}

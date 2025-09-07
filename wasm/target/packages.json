@@ -1,0 +1,25 @@
+{
+  "source_dir": "/Users/hongguan/Desktop/wechat-copy-helper/wasm",
+  "name": "moon/test",
+  "packages": [
+    {
+      "is-main": false,
+      "is-third-party": false,
+      "root-path": "/Users/hongguan/Desktop/wechat-copy-helper/wasm",
+      "root": "moon/test",
+      "rel": "single",
+      "files": {},
+      "wbtest-files": {},
+      "test-files": {},
+      "mbt-md-files": {},
+      "deps": [],
+      "wbtest-deps": [],
+      "test-deps": [],
+      "artifact": "/Users/hongguan/Desktop/wechat-copy-helper/wasm/target/wasm-gc/release/check/single/single.mi"
+    }
+  ],
+  "deps": [],
+  "backend": "wasm-gc",
+  "opt_level": "release",
+  "source": null
+}

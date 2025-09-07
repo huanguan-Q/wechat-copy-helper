@@ -1,0 +1,88 @@
+{
+  "source_dir": "/Users/hongguan/Desktop/wechat-copy-helper/wasm/moonbit",
+  "name": "wechat_copy_helper_wasm",
+  "packages": [
+    {
+      "is-main": false,
+      "is-third-party": false,
+      "root-path": "/Users/hongguan/Desktop/wechat-copy-helper/wasm/moonbit/src/lib",
+      "root": "wechat_copy_helper_wasm",
+      "rel": "lib",
+      "files": {
+        "/Users/hongguan/Desktop/wechat-copy-helper/wasm/moonbit/src/lib/core.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Debug",
+            "Release"
+          ]
+        }
+      },
+      "wbtest-files": {},
+      "test-files": {
+        "/Users/hongguan/Desktop/wechat-copy-helper/wasm/moonbit/src/lib/core_test.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Debug",
+            "Release"
+          ]
+        }
+      },
+      "mbt-md-files": {},
+      "deps": [],
+      "wbtest-deps": [],
+      "test-deps": [],
+      "artifact": "/Users/hongguan/Desktop/wechat-copy-helper/wasm/moonbit/target/wasm-gc/release/check/lib/lib.mi"
+    },
+    {
+      "is-main": true,
+      "is-third-party": false,
+      "root-path": "/Users/hongguan/Desktop/wechat-copy-helper/wasm/moonbit/src/main",
+      "root": "wechat_copy_helper_wasm",
+      "rel": "main",
+      "files": {
+        "/Users/hongguan/Desktop/wechat-copy-helper/wasm/moonbit/src/main/exports.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Debug",
+            "Release"
+          ]
+        }
+      },
+      "wbtest-files": {},
+      "test-files": {},
+      "mbt-md-files": {},
+      "deps": [
+        {
+          "path": "wechat_copy_helper_wasm/lib",
+          "alias": "lib",
+          "fspath": "/Users/hongguan/Desktop/wechat-copy-helper/wasm/moonbit/src/lib"
+        }
+      ],
+      "wbtest-deps": [],
+      "test-deps": [],
+      "artifact": "/Users/hongguan/Desktop/wechat-copy-helper/wasm/moonbit/target/wasm-gc/release/check/main/main.mi"
+    }
+  ],
+  "deps": [],
+  "backend": "wasm-gc",
+  "opt_level": "release",
+  "source": "src"
+}

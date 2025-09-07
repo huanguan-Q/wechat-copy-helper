@@ -1,0 +1,82 @@
+name: MoonBit CI
+
+on:
+  push:
+    paths:
+      - "wasm/moonbit/**"
+      - "scripts/build_wasm.mjs"
+  pull_request:
+    paths:
+      - "wasm/moonbit/**"
+      - "scripts/build_wasm.mjs"
+  workflow_dispatch:
+
+jobs:
+  moonbit:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: wasm/moonbit
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js (for copying artifact step)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: |
+            package-lock.json
+            wasm/moonbit/package-lock.json
+
+      - name: Cache MoonBit CLI and home
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.moon
+          key: moon-home-${{ runner.os }}-v1
+          restore-keys: |
+            moon-home-${{ runner.os }}-
+
+      - name: Setup MoonBit CLI
+        shell: bash
+        run: |
+          echo "$HOME/.moon/bin" >> $GITHUB_PATH
+          export PATH="$HOME/.moon/bin:$PATH"
+          if ! command -v moon >/dev/null 2>&1; then
+            echo "Installing MoonBit CLI..."
+            curl -fsSL https://cli.moonbitlang.com/install.sh | bash
+          fi
+          which moon && moon --version
+
+      - name: Cache MoonBit target build
+        uses: actions/cache@v4
+        with:
+          path: wasm/moonbit/target
+          key: moon-target-${{ runner.os }}-${{ hashFiles('wasm/moonbit/moon.mod.json', 'wasm/moonbit/src/**', 'wasm/moonbit/tests/**') }}
+          restore-keys: |
+            moon-target-${{ runner.os }}-
+
+      - name: Format check
+        run: moon fmt --check
+
+      - name: Static check
+        run: moon check
+
+      - name: Run tests
+        run: moon test
+
+      - name: Build release
+        run: moon build --release
+
+      - name: Copy wasm artifact to extension root
+        working-directory: .
+        run: node scripts/build_wasm.mjs
+
+      - name: Upload core.wasm artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: core-wasm
+          path: wasm/core.wasm
+          if-no-files-found: error

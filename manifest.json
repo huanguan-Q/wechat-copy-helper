@@ -1,0 +1,48 @@
+{
+  "manifest_version": 3,
+  "name": "微信内容研究助手",
+  "version": "1.0.0",
+  "description": "用于学术研究和内容分析的微信公众号辅助工具，帮助研究人员更好地分析和引用内容。",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "contextMenus",
+    "notifications",
+    "scripting",
+    "downloads"
+  ],
+  "host_permissions": [
+    "https://mp.weixin.qq.com/*",
+    "https://mmbiz.qpic.cn/*",
+    "https://*/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://mp.weixin.qq.com/*"],
+      "js": ["wasmLoader.js", "content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_end"
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "微信内容研究助手"
+  },
+  "icons": {
+    "16": "icon16.svg",
+    "48": "icon48.svg",
+    "128": "icon128.svg"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["wasm/*"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+  }
+}

@@ -1,0 +1,9 @@
+# System files to ignore for a clean repository
+.DS_Store
+Thumbs.db
+._*
+.AppleDouble
+.LSOverride
+Icon?
+.Spotlight-V100
+.Trashes
