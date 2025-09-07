@@ -67,7 +67,7 @@ jobs:
         run: moon build --release
 
       - name: Copy wasm artifact to extension root
-        working-directory: .
+        working-directory: ${{ github.workspace }}
         run: node scripts/build_wasm.mjs
 
       - name: Upload core.wasm artifact
