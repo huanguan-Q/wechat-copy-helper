@@ -2,15 +2,7 @@ name: MoonBit CI
 
 on:
   push:
-    paths:
-      - ".github/workflows/**"
-      - "wasm/moonbit/**"
-      - "scripts/build_wasm.mjs"
   pull_request:
-    paths:
-      - ".github/workflows/**"
-      - "wasm/moonbit/**"
-      - "scripts/build_wasm.mjs"
   workflow_dispatch:
 
 jobs:
