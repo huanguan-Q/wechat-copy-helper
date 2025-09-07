@@ -3,6 +3,10 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
+    "fmt:moon": "moon fmt --check",
+    "check:moon": "moon check",
+    "test:moon": "moon test",
+    "build:moon": "moon build --release",
     "build:wasm": "node scripts/build_wasm.mjs"
   }
 }

@@ -49,16 +49,16 @@ jobs:
             moon-target-${{ runner.os }}-
 
       - name: Format check
-        run: moon fmt --check
+        run: npm --prefix ${{ github.workspace }} run fmt:moon
 
       - name: Static check
-        run: moon check
+        run: npm --prefix ${{ github.workspace }} run check:moon
 
       - name: Run tests
-        run: moon test
+        run: npm --prefix ${{ github.workspace }} run test:moon
 
       - name: Build release
-        run: moon build --release
+        run: npm --prefix ${{ github.workspace }} run build:moon
 
       - name: Copy wasm artifact to extension root
         working-directory: ${{ github.workspace }}
