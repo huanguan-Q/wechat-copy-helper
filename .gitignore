@@ -12,3 +12,7 @@ Icon?
 wasm/moonbit/target/
 wasm/moonbit/.mooncakes/
 wasm/target/
+
+# MoonBit coverage reports
+wasm/moonbit/coverage-html/
+coverage-html/
