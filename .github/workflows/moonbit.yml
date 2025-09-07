@@ -42,7 +42,7 @@ jobs:
           export PATH="$HOME/.moon/bin:$PATH"
           if ! command -v moon >/dev/null 2>&1; then
             echo "Installing MoonBit CLI..."
-            curl -fsSL https://cli.moonbitlang.com/install.sh | bash
+            curl -fsSL --retry 3 https://cli.moonbitlang.com/install/unix.sh | bash
           fi
           which moon && moon --version
 
