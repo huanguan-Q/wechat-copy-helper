@@ -44,7 +44,7 @@ jobs:
             echo "Installing MoonBit CLI..."
             curl -fsSL --retry 3 https://cli.moonbitlang.com/install/unix.sh | bash
           fi
-          which moon && moon --version
+          which moon && moon version
 
       - name: Cache MoonBit target build
         uses: actions/cache@v4
