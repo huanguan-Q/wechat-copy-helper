@@ -27,6 +27,39 @@
     sanitizeFilename(name){
       const base = (name || 'file').replace(/[\\/:*?"<>|]+/g, '_');
       return base.slice(0, 120);
+    },
+    // Escape HTML text content: &, <, >; replace surrogate halves with '_'
+    escapeHtml(s){
+      if (s == null) return '';
+      let out = '';
+      for (let i = 0; i < s.length; i++) {
+        const code = s.charCodeAt(i);
+        if (code >= 0xD800 && code <= 0xDFFF) { out += '_'; continue; }
+        if (code === 38) { out += '&amp;'; continue; } // &
+        if (code === 60) { out += '&lt;'; continue; }  // <
+        if (code === 62) { out += '&gt;'; continue; }  // >
+        out += s[i];
+      }
+      return out;
+    },
+    // Escape HTML attribute content: &, <, >, ", ' ; replace surrogate halves with '_'
+    escapeAttr(s){
+      if (s == null) return '';
+      let out = '';
+      for (let i = 0; i < s.length; i++) {
+        const code = s.charCodeAt(i);
+        if (code >= 0xD800 && code <= 0xDFFF) { out += '_'; continue; }
+        if (code === 38) { out += '&amp;'; continue; }
+        if (code === 60) { out += '&lt;'; continue; }
+        if (code === 62) { out += '&gt;'; continue; }
+        if (code === 34) { out += '&quot;'; continue; }
+        if (code === 39) { out += '&#39;'; continue; }
+        out += s[i];
+      }
+      return out;
+    },
+    ensureWechatCdnParams(u){
+      return this.normalizeImageUrl(u);
     }
   };
 
@@ -120,13 +153,19 @@
   const directFns = {
     normalizeImageUrl: makeDirectStringFn('normalize_image_url'),
     decideReferrerPolicy: makeDirectStringFn('decide_referrer_policy'),
-    sanitizeFilename: makeDirectStringFn('sanitize_filename')
+    sanitizeFilename: makeDirectStringFn('sanitize_filename'),
+    escapeHtml: makeDirectStringFn('escape_html'),
+    escapeAttr: makeDirectStringFn('escape_attr'),
+    ensureWechatCdnParams: makeDirectStringFn('ensure_wechat_cdn_params')
   };
 
   const memoryFns = {
     normalizeImageUrl: makeWasmStringFn('normalize_image_url'),
     decideReferrerPolicy: makeWasmStringFn('decide_referrer_policy'),
-    sanitizeFilename: makeWasmStringFn('sanitize_filename')
+    sanitizeFilename: makeWasmStringFn('sanitize_filename'),
+    escapeHtml: makeWasmStringFn('escape_html'),
+    escapeAttr: makeWasmStringFn('escape_attr'),
+    ensureWechatCdnParams: makeWasmStringFn('ensure_wechat_cdn_params')
   };
 
   // Compute facade: prefer direct string exports; fallback to linear memory ABI; finally fallback to JS
@@ -148,6 +187,24 @@
       if (r1 != null && r1 !== '') return r1;
       const r2 = memoryFns.sanitizeFilename && memoryFns.sanitizeFilename(name);
       return (r2 != null && r2 !== '') ? r2 : js.sanitizeFilename(name);
+    },
+    escapeHtml(s){
+      const r1 = directFns.escapeHtml && directFns.escapeHtml(s);
+      if (r1 != null) return r1;
+      const r2 = memoryFns.escapeHtml && memoryFns.escapeHtml(s);
+      return (r2 != null) ? r2 : js.escapeHtml(s);
+    },
+    escapeAttr(s){
+      const r1 = directFns.escapeAttr && directFns.escapeAttr(s);
+      if (r1 != null) return r1;
+      const r2 = memoryFns.escapeAttr && memoryFns.escapeAttr(s);
+      return (r2 != null) ? r2 : js.escapeAttr(s);
+    },
+    ensureWechatCdnParams(u){
+      const r1 = directFns.ensureWechatCdnParams && directFns.ensureWechatCdnParams(u);
+      if (r1 != null && r1 !== '') return r1;
+      const r2 = memoryFns.ensureWechatCdnParams && memoryFns.ensureWechatCdnParams(u);
+      return (r2 != null && r2 !== '') ? r2 : js.ensureWechatCdnParams(u);
     }
   };
 

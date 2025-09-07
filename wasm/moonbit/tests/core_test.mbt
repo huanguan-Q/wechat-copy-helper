@@ -82,3 +82,34 @@ test "sanitize - clamp to 120 chars" {
   let want = repeat('x', 120)
   assert_eq(@lib.sanitize_filename(long), want)
 }
+
+test "escape_html - basic entities" {
+  assert_eq(@lib.escape_html("a&b<c>d"), "a&amp;b&lt;c&gt;d")
+}
+
+test "escape_html - quotes remain intact" {
+  assert_eq(@lib.escape_html("\"'"), "\"'")
+}
+
+test "escape_html - surrogate pair becomes underscores" {
+  assert_eq(@lib.escape_html("A🙂B"), "A__B")
+}
+
+test "escape_attr - basic entities incl quotes" {
+  let input = "Tom's \"hat\" & <tag>"
+  let want = "Tom&#39;s &quot;hat&quot; &amp; &lt;tag&gt;"
+  assert_eq(@lib.escape_attr(input), want)
+}
+
+test "escape_attr - surrogate pair becomes underscores" {
+  assert_eq(@lib.escape_attr("A🙂B"), "A__B")
+}
+
+test "ensure_wechat_cdn_params - parity with normalize_image_url" {
+  let url1 = "https://example.com/a.png"
+  assert_eq(@lib.ensure_wechat_cdn_params(url1), @lib.normalize_image_url(url1))
+  let url2 = "https://mmbiz.qpic.cn/a/b.png"
+  assert_eq(@lib.ensure_wechat_cdn_params(url2), @lib.normalize_image_url(url2))
+  let url3 = "https://mmbiz.qpic.cn/a/b.png?wx_fmt=jpeg"
+  assert_eq(@lib.ensure_wechat_cdn_params(url3), @lib.normalize_image_url(url3))
+}

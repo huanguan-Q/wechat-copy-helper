@@ -73,7 +73,7 @@ pub fn decide_referrer_policy(input : String) -> String {
 /// If input is empty, defaults to "file".
 pub fn sanitize_filename(name : String) -> String {
   let base = if name.length() == 0 { "file" } else { name }
-  // Invalid set: / \ : * ? " < > |
+  // Invalid set: / \\ : * ? " < > |
   let mut i = 0
   let mut out = ""
   let mut count = 0
@@ -110,4 +110,95 @@ pub fn sanitize_filename(name : String) -> String {
     }
   }
   out
+}
+
+///|
+/// Escape HTML text content by replacing '&', '<', '>' with their entities.
+/// Non-ASCII code units are preserved when decodable as Char; undecodable units become '_'.
+pub fn escape_html(input : String) -> String {
+  let mut i = 0
+  let mut out = ""
+  while i < input.length() {
+    let code = input[i]
+    if code == ('&' : Int) {
+      out = out + "&amp;"
+      i = i + 1
+      continue
+    }
+    if code == ('<' : Int) {
+      out = out + "&lt;"
+      i = i + 1
+      continue
+    }
+    if code == ('>' : Int) {
+      out = out + "&gt;"
+      i = i + 1
+      continue
+    }
+    match code.to_char() {
+      Some(c) => {
+        out = out + c.to_string()
+        i = i + 1
+      }
+      None => {
+        out = out + "_"
+        i = i + 1
+      }
+    }
+  }
+  out
+}
+
+///|
+/// Escape HTML attribute content. In addition to text escaping, also escape '"' and '\''.
+/// Mappings: '&' -> &amp;, '<' -> &lt;, '>' -> &gt;, '"' -> &quot;, '\'' -> &#39;
+pub fn escape_attr(input : String) -> String {
+  let mut i = 0
+  let mut out = ""
+  while i < input.length() {
+    let code = input[i]
+    if code == ('&' : Int) {
+      out = out + "&amp;"
+      i = i + 1
+      continue
+    }
+    if code == ('<' : Int) {
+      out = out + "&lt;"
+      i = i + 1
+      continue
+    }
+    if code == ('>' : Int) {
+      out = out + "&gt;"
+      i = i + 1
+      continue
+    }
+    if code == ('\"' : Int) {
+      out = out + "&quot;"
+      i = i + 1
+      continue
+    }
+    if code == ('\'' : Int) {
+      out = out + "&#39;"
+      i = i + 1
+      continue
+    }
+    match code.to_char() {
+      Some(c) => {
+        out = out + c.to_string()
+        i = i + 1
+      }
+      None => {
+        out = out + "_"
+        i = i + 1
+      }
+    }
+  }
+  out
+}
+
+///|
+/// Alias of normalize_image_url for naming symmetry when used as a general-purpose "ensure" helper.
+/// This function may evolve to handle more WeChat CDN param policies while normalize_image_url retains current behavior.
+pub fn ensure_wechat_cdn_params(input : String) -> String {
+  normalize_image_url(input)
 }

@@ -8,7 +8,10 @@
       "exports": [
         "normalize_image_url",
         "decide_referrer_policy",
-        "sanitize_filename"
+        "sanitize_filename",
+        "escape_html",
+        "escape_attr",
+        "ensure_wechat_cdn_params"
       ],
       "use-js-builtin-string": true
     }
