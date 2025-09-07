@@ -7,3 +7,8 @@ Thumbs.db
 Icon?
 .Spotlight-V100
 .Trashes
+
+# MoonBit build caches
+wasm/moonbit/target/
+wasm/moonbit/.mooncakes/
+wasm/target/
