@@ -49,20 +49,25 @@ jobs:
             moon-target-${{ runner.os }}-
 
       - name: Format check
-        run: npm --prefix ${{ github.workspace }} run fmt:moon
+        run: moon fmt --check
 
       - name: Static check
-        run: npm --prefix ${{ github.workspace }} run check:moon
+        run: moon check
 
       - name: Run tests
-        run: npm --prefix ${{ github.workspace }} run test:moon
+        run: |
+          moon test
+          moon -C tests test
 
       - name: Run doc tests (lib + tests)
-        run: npm --prefix ${{ github.workspace }} run test:moon:doc
+        run: |
+          moon test --doc
+          moon -C tests test --doc
 
       - name: Coverage (summary+HTML, enforce >=80%)
         run: |
-          npm --prefix ${{ github.workspace }} run coverage:moon | tee /tmp/cov.txt
+          moon coverage clean
+          moon coverage analyze -- -f summary | tee /tmp/cov.txt
           total_line=$(grep -E 'Total:\s*[0-9]+/[0-9]+' /tmp/cov.txt | tail -n1)
           echo "$total_line"
           nums=$(echo "$total_line" | sed -n 's/Total: \([0-9]\+\)\/\([0-9]\+\)/\1 \2/p')
@@ -80,7 +85,7 @@ jobs:
           if-no-files-found: error
 
       - name: Build release
-        run: npm --prefix ${{ github.workspace }} run build:moon
+        run: moon build --release
 
       - name: Copy wasm artifact to extension root
         working-directory: ${{ github.workspace }}
