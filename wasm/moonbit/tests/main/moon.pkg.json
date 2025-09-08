@@ -1,0 +1,6 @@
+{
+  "is-test": true,
+  "import": [
+    { "path": "wechat_copy_helper_wasm/src/main", "alias": "entry" }
+  ]
+}
