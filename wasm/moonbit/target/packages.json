@@ -5,64 +5,6 @@
     {
       "is-main": false,
       "is-third-party": false,
-      "root-path": "/Users/hongguan/Desktop/wechat-copy-helper/wasm/moonbit/tests/lib",
-      "root": "wechat_copy_helper_wasm",
-      "rel": "tests/lib",
-      "files": {},
-      "wbtest-files": {},
-      "test-files": {
-        "/Users/hongguan/Desktop/wechat-copy-helper/wasm/moonbit/tests/lib/core_test.mbt": {
-          "backend": [
-            "Wasm",
-            "WasmGC",
-            "Js",
-            "Native",
-            "LLVM"
-          ],
-          "optlevel": [
-            "Debug",
-            "Release"
-          ]
-        }
-      },
-      "mbt-md-files": {},
-      "deps": [],
-      "wbtest-deps": [],
-      "test-deps": [],
-      "artifact": "/Users/hongguan/Desktop/wechat-copy-helper/wasm/moonbit/target/wasm-gc/release/check/tests/lib/lib.mi"
-    },
-    {
-      "is-main": false,
-      "is-third-party": false,
-      "root-path": "/Users/hongguan/Desktop/wechat-copy-helper/wasm/moonbit/tests/main",
-      "root": "wechat_copy_helper_wasm",
-      "rel": "tests/main",
-      "files": {},
-      "wbtest-files": {},
-      "test-files": {
-        "/Users/hongguan/Desktop/wechat-copy-helper/wasm/moonbit/tests/main/exports_test.mbt": {
-          "backend": [
-            "Wasm",
-            "WasmGC",
-            "Js",
-            "Native",
-            "LLVM"
-          ],
-          "optlevel": [
-            "Debug",
-            "Release"
-          ]
-        }
-      },
-      "mbt-md-files": {},
-      "deps": [],
-      "wbtest-deps": [],
-      "test-deps": [],
-      "artifact": "/Users/hongguan/Desktop/wechat-copy-helper/wasm/moonbit/target/wasm-gc/release/check/tests/main/main.mi"
-    },
-    {
-      "is-main": false,
-      "is-third-party": false,
       "root-path": "/Users/hongguan/Desktop/wechat-copy-helper/wasm/moonbit/src/lib",
       "root": "wechat_copy_helper_wasm",
       "rel": "src/lib",
@@ -82,7 +24,34 @@
         }
       },
       "wbtest-files": {},
-      "test-files": {},
+      "test-files": {
+        "/Users/hongguan/Desktop/wechat-copy-helper/wasm/moonbit/src/lib/core_test.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Debug",
+            "Release"
+          ]
+        },
+        "/Users/hongguan/Desktop/wechat-copy-helper/wasm/moonbit/src/lib/core_edge_cases_test.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Debug",
+            "Release"
+          ]
+        }
+      },
       "mbt-md-files": {},
       "deps": [],
       "wbtest-deps": [],
@@ -111,7 +80,21 @@
         }
       },
       "wbtest-files": {},
-      "test-files": {},
+      "test-files": {
+        "/Users/hongguan/Desktop/wechat-copy-helper/wasm/moonbit/src/main/exports_test.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Debug",
+            "Release"
+          ]
+        }
+      },
       "mbt-md-files": {},
       "deps": [
         {
