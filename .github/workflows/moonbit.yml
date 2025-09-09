@@ -57,21 +57,16 @@ jobs:
       - name: Run tests
         run: |
           moon coverage clean
-          moon -C tests coverage clean
           moon test --enable-coverage
-          moon -C tests test --enable-coverage
 
-      - name: Run doc tests (lib + tests)
+      - name: Run doc tests
         run: |
           moon test --doc --enable-coverage
-          moon -C tests test --doc --enable-coverage
 
       - name: Coverage (summary+HTML, enforce >=80%)
         run: |
-          echo "Root workspace coverage summary:"
-          moon coverage report -f summary | tee /tmp/cov_root.txt || true
-          echo "Tests workspace coverage summary:"
-          moon -C tests coverage report -f summary | tee /tmp/cov_tests.txt || true
+          echo "Coverage summary:"
+          moon coverage report -f summary | tee /tmp/cov.txt || true
 
           get_totals() {
             local file="$1"
@@ -86,24 +81,19 @@ jobs:
             echo "0 0"
           }
 
-          read covered_root total_root <<< "$(get_totals /tmp/cov_root.txt)"
-          read covered_tests total_tests <<< "$(get_totals /tmp/cov_tests.txt)"
-
-          covered=$((covered_root + covered_tests))
-          total=$((total_root + total_tests))
+          read covered total <<< "$(get_totals /tmp/cov.txt)"
 
           if [ "$total" -eq 0 ]; then
             echo "Coverage: 0.00% (no executable lines)"; exit 1
           fi
 
           pct=$(awk -v c="$covered" -v t="$total" 'BEGIN { printf "%.2f", (c/t)*100 }')
-          echo "Merged coverage: $covered/$total => $pct%"
+          echo "Coverage: $covered/$total => $pct%"
 
           awk -v p="$pct" 'BEGIN { if (p+0 < 80.0) { exit 1 } }' || { echo "Coverage below 80%"; exit 1; }
 
-          # Generate HTML reports for both workspaces
-          moon coverage report -f html -o coverage-html/root || true
-          moon -C tests coverage report -f html -o coverage-html/tests || true
+          # Generate HTML report
+          moon coverage report -f html -o coverage-html || true
 
       - name: Upload coverage HTML artifact
         uses: actions/upload-artifact@v4
