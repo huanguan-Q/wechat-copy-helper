@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 const root = resolve(__dirname, '..')
-const moonProj = resolve(root, 'wasm/moonbit')
+const moonProj = resolve(root, 'moonbit')
 
 function run(cmd, cwd){
   console.log(`[exec] ${cmd} (cwd=${cwd})`)

@@ -3,12 +3,12 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "fmt:moon": "cd wasm/moonbit && moon fmt --check",
-    "check:moon": "cd wasm/moonbit && moon check",
-    "test:moon": "cd wasm/moonbit && moon test && moon -C tests test",
-    "test:moon:doc": "cd wasm/moonbit && moon test --doc && moon -C tests test --doc",
-    "coverage:moon": "cd wasm/moonbit && moon coverage analyze -- -f summary && moon coverage report -- -f html -o coverage-html",
-    "build:moon": "cd wasm/moonbit && moon build --release",
+    "fmt:moon": "cd moonbit && moon fmt --check",
+    "check:moon": "cd moonbit && moon check",
+    "test:moon": "cd moonbit && moon test",
+    "test:moon:doc": "cd moonbit && moon test --doc",
+    "coverage:moon": "cd moonbit && moon coverage report -f summary && moon coverage report -f html -o coverage-html",
+    "build:moon": "cd moonbit && moon build --release",
     "build:wasm": "node scripts/build_wasm.mjs"
   }
 }
