@@ -14,5 +14,6 @@ wasm/moonbit/.mooncakes/
 wasm/target/
 
 # MoonBit coverage reports
+wasm/moonbit/_coverage/
 wasm/moonbit/coverage-html/
 coverage-html/
