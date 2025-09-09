@@ -68,16 +68,42 @@ jobs:
 
       - name: Coverage (summary+HTML, enforce >=80%)
         run: |
-          moon coverage report -f summary | tee /tmp/cov.txt
-          total_line=$(grep -E 'Total:\s*[0-9]+/[0-9]+' /tmp/cov.txt | tail -n1)
-          echo "$total_line"
-          nums=$(echo "$total_line" | sed -n 's/Total: \([0-9]\+\)\/\([0-9]\+\)/\1 \2/p')
-          read covered total <<< "$nums"
-          if [ -z "$covered" ] || [ -z "$total" ]; then echo "Failed to parse coverage"; exit 1; fi
+          echo "Root workspace coverage summary:"
+          moon coverage report -f summary | tee /tmp/cov_root.txt || true
+          echo "Tests workspace coverage summary:"
+          moon -C tests coverage report -f summary | tee /tmp/cov_tests.txt || true
+
+          get_totals() {
+            local file="$1"
+            if [ -s "$file" ]; then
+              local line
+              line=$(grep -E 'Total:\s*[0-9]+/[0-9]+' "$file" | tail -n1)
+              if [ -n "$line" ]; then
+                echo "$line" | sed -n 's/Total: \([0-9]\+\)\/\([0-9]\+\)/\1 \2/p'
+                return 0
+              fi
+            fi
+            echo "0 0"
+          }
+
+          read covered_root total_root <<< "$(get_totals /tmp/cov_root.txt)"
+          read covered_tests total_tests <<< "$(get_totals /tmp/cov_tests.txt)"
+
+          covered=$((covered_root + covered_tests))
+          total=$((total_root + total_tests))
+
+          if [ "$total" -eq 0 ]; then
+            echo "Coverage: 0.00% (no executable lines)"; exit 1
+          fi
+
           pct=$(awk -v c="$covered" -v t="$total" 'BEGIN { printf "%.2f", (c/t)*100 }')
-          echo "Coverage: $pct%"
+          echo "Merged coverage: $covered/$total => $pct%"
+
           awk -v p="$pct" 'BEGIN { if (p+0 < 80.0) { exit 1 } }' || { echo "Coverage below 80%"; exit 1; }
-          moon coverage report -f html -o coverage-html
+
+          # Generate HTML reports for both workspaces
+          moon coverage report -f html -o coverage-html/root || true
+          moon -C tests coverage report -f html -o coverage-html/tests || true
 
       - name: Upload coverage HTML artifact
         uses: actions/upload-artifact@v4
