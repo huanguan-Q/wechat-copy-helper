@@ -18,7 +18,7 @@ function run(cmd, cwd){
 try {
   run('moon build --release', moonProj)
   // Deterministic output path for wasm-gc release build
-  const wasmSrc = resolve(moonProj, 'target/wasm-gc/release/build/main/main.wasm')
+  const wasmSrc = resolve(moonProj, 'target/wasm-gc/release/build/src/main/main.wasm')
   const wasmDst = resolve(root, 'wasm/core.wasm')
   mkdirSync(resolve(root, 'wasm'), { recursive: true })
   // Verify the built artifact exists
