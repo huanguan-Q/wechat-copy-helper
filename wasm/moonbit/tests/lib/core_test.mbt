@@ -11,7 +11,7 @@ test "normalize - non wechat unchanged" {
 test "normalize - add both when none and no query" {
   let url = "https://mmbiz.qpic.cn/path/img"
   assert_eq(
-    @lib.normalize_image_url(url),
+    @core.normalize_image_url(url),
     "https://mmbiz.qpic.cn/path/img?wx_fmt=png&tp=webp",
   )
 }
