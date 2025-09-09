@@ -11,19 +11,18 @@ typealias @moonbitlang/core/builtin.Map[
 ] as Moonbit_Test_Driver_Internal_No_Args_Map
 
 let moonbit_test_driver_internal_no_args_tests : Moonbit_Test_Driver_Internal_No_Args_Map = {
-  "core_test.mbt": {
-    0: (__test_636f72655f746573742e6d6274_0, ["normalize - non wechat unchanged"]),
-    1: (__test_636f72655f746573742e6d6274_1, ["normalize - add both when none and no query"]),
-    2: (__test_636f72655f746573742e6d6274_2, ["normalize - add both when none and has query"]),
-    3: (__test_636f72655f746573742e6d6274_3, ["normalize - only add tp when wx_fmt exists"]),
-    4: (__test_636f72655f746573742e6d6274_4, ["normalize - only add wx_fmt when tp exists"]),
-    5: (__test_636f72655f746573742e6d6274_5, ["normalize - unchanged when both present"]),
-    6: (__test_636f72655f746573742e6d6274_6, ["policy - wechat cdn uses no-referrer-when-downgrade"]),
-    7: (__test_636f72655f746573742e6d6274_7, ["policy - non wechat uses no-referrer"]),
-    8: (__test_636f72655f746573742e6d6274_8, ["sanitize - empty becomes file"]),
-    9: (__test_636f72655f746573742e6d6274_9, ["sanitize - replace invalid ascii"]),
-    10: (__test_636f72655f746573742e6d6274_10, ["sanitize - emoji becomes underscores"]),
-    11: (__test_636f72655f746573742e6d6274_11, ["sanitize - clamp to 120 chars"]),
+  "str_contains_test.mbt": {
+    0: (__test_7374725f636f6e7461696e735f746573742e6d6274_0, ["str_contains - empty needle true for non-empty"]),
+    1: (__test_7374725f636f6e7461696e735f746573742e6d6274_1, ["str_contains - empty needle true for empty"]),
+    2: (__test_7374725f636f6e7461696e735f746573742e6d6274_2, ["str_contains - empty haystack and non-empty needle false"]),
+    3: (__test_7374725f636f6e7461696e735f746573742e6d6274_3, ["str_contains - match at start"]),
+    4: (__test_7374725f636f6e7461696e735f746573742e6d6274_4, ["str_contains - match in middle"]),
+    5: (__test_7374725f636f6e7461696e735f746573742e6d6274_5, ["str_contains - match at end"]),
+    6: (__test_7374725f636f6e7461696e735f746573742e6d6274_6, ["str_contains - no match"]),
+    7: (__test_7374725f636f6e7461696e735f746573742e6d6274_7, ["str_contains - needle longer than haystack"]),
+    8: (__test_7374725f636f6e7461696e735f746573742e6d6274_8, ["str_contains - overlapping pattern"]),
+    9: (__test_7374725f636f6e7461696e735f746573742e6d6274_9, ["str_contains - unicode code unit preserved"]),
+    10: (__test_7374725f636f6e7461696e735f746573742e6d6274_10, ["str_contains - large haystack scan"]),
   },
 }
 

@@ -2,7 +2,7 @@
 /// Black-box tests for core public APIs
 test "normalize - non wechat unchanged" {
   assert_eq(
-    @core.normalize_image_url("https://example.com/a.png"),
+    normalize_image_url("https://example.com/a.png"),
     "https://example.com/a.png",
   )
 }
@@ -11,7 +11,7 @@ test "normalize - non wechat unchanged" {
 test "normalize - add both when none and no query" {
   let url = "https://mmbiz.qpic.cn/path/img"
   assert_eq(
-    @core.normalize_image_url(url),
+    @lib.normalize_image_url(url),
     "https://mmbiz.qpic.cn/path/img?wx_fmt=png&tp=webp",
   )
 }
@@ -20,7 +20,7 @@ test "normalize - add both when none and no query" {
 test "normalize - add both when none and has query" {
   let url = "https://mmbiz.qpic.cn/path/img?x=1"
   assert_eq(
-    @core.normalize_image_url(url),
+    @lib.normalize_image_url(url),
     "https://mmbiz.qpic.cn/path/img?x=1&wx_fmt=png&tp=webp",
   )
 }
@@ -29,7 +29,7 @@ test "normalize - add both when none and has query" {
 test "normalize - only add tp when wx_fmt exists" {
   let url = "https://mmbiz.qpic.cn/a/b.png?wx_fmt=jpeg"
   assert_eq(
-    @core.normalize_image_url(url),
+    @lib.normalize_image_url(url),
     "https://mmbiz.qpic.cn/a/b.png?wx_fmt=jpeg&tp=webp",
   )
 }
@@ -38,7 +38,7 @@ test "normalize - only add tp when wx_fmt exists" {
 test "normalize - only add wx_fmt when tp exists" {
   let url = "https://mmbiz.qpic.cn/a/b.png?tp=webp"
   assert_eq(
-    @core.normalize_image_url(url),
+    @lib.normalize_image_url(url),
     "https://mmbiz.qpic.cn/a/b.png?tp=webp&wx_fmt=png",
   )
 }
@@ -46,13 +46,13 @@ test "normalize - only add wx_fmt when tp exists" {
 ///|
 test "normalize - unchanged when both present" {
   let url = "https://mmbiz.qpic.cn/a/b.png?tp=webp&wx_fmt=png"
-  assert_eq(@core.normalize_image_url(url), url)
+  assert_eq(@lib.normalize_image_url(url), url)
 }
 
 ///|
 test "policy - wechat cdn uses no-referrer-when-downgrade" {
   assert_eq(
-    @core.decide_referrer_policy("https://mmbiz.qpic.cn/a/b.png"),
+    @lib.decide_referrer_policy("https://mmbiz.qpic.cn/a/b.png"),
     "no-referrer-when-downgrade",
   )
 }
@@ -60,7 +60,7 @@ test "policy - wechat cdn uses no-referrer-when-downgrade" {
 ///|
 test "policy - non wechat uses no-referrer" {
   assert_eq(
-    @core.decide_referrer_policy("https://example.com/a/b.png"),
+    @lib.decide_referrer_policy("https://example.com/a/b.png"),
     "no-referrer",
   )
 }
@@ -78,13 +78,13 @@ fn repeat(c : Char, n : Int) -> String {
 
 ///|
 test "sanitize - empty becomes file" {
-  assert_eq(@core.sanitize_filename(""), "file")
+  assert_eq(@lib.sanitize_filename(""), "file")
 }
 
 ///|
 test "sanitize - replace invalid ascii" {
   assert_eq(
-    @core.sanitize_filename("a/b\\c:d*e?f\"g<h>i|j"),
+    @lib.sanitize_filename("a/b\\c:d*e?f\"g<h>i|j"),
     "a_b_c_d_e_f_g_h_i_j",
   )
 }
@@ -92,24 +92,24 @@ test "sanitize - replace invalid ascii" {
 ///|
 test "sanitize - emoji becomes underscores" {
   // '🙂' is a surrogate pair; current implementation replaces each unit with '_'
-  assert_eq(@core.sanitize_filename("A🙂B"), "A__B")
+  assert_eq(@lib.sanitize_filename("A🙂B"), "A__B")
 }
 
 ///|
 test "sanitize - clamp to 120 chars" {
   let long = repeat('x', 130)
   let want = repeat('x', 120)
-  assert_eq(@core.sanitize_filename(long), want)
+  assert_eq(@lib.sanitize_filename(long), want)
 }
 
 ///|
 test "escape_html - basic entities" {
-  assert_eq(@core.escape_html("a&b<c>d"), "a&amp;b&lt;c&gt;d")
+  assert_eq(@lib.escape_html("a&b<c>d"), "a&amp;b&lt;c&gt;d")
 }
 
 ///|
 test "escape_html - quotes remain intact" {
-  assert_eq(@core.escape_html("\"'"), "\"'")
+  assert_eq(@lib.escape_html("\"'"), "\"'")
 }
 
 // ===== Edge cases from core_edge_cases_test.mbt (merged) =====
@@ -119,7 +119,7 @@ test "escape_html - quotes remain intact" {
 ///|
 test "normalize - uppercase host unchanged" {
   assert_eq(
-    @core.normalize_image_url("https://MMBIZ.QPIC.CN/a.png"),
+    @lib.normalize_image_url("https://MMBIZ.QPIC.CN/a.png"),
     "https://MMBIZ.QPIC.CN/a.png",
   )
 }
@@ -128,7 +128,7 @@ test "normalize - uppercase host unchanged" {
 test "normalize - trailing question mark adds & then params" {
   let url = "https://mmbiz.qpic.cn/img?"
   assert_eq(
-    @core.normalize_image_url(url),
+    @lib.normalize_image_url(url),
     "https://mmbiz.qpic.cn/img?&wx_fmt=png&tp=webp",
   )
 }
@@ -137,7 +137,7 @@ test "normalize - trailing question mark adds & then params" {
 test "normalize - wx_fmt empty adds only tp" {
   let url = "https://mmbiz.qpic.cn/a?wx_fmt="
   assert_eq(
-    @core.normalize_image_url(url),
+    @lib.normalize_image_url(url),
     "https://mmbiz.qpic.cn/a?wx_fmt=&tp=webp",
   )
 }
@@ -146,21 +146,21 @@ test "normalize - wx_fmt empty adds only tp" {
 test "normalize - tp present (non-webp) adds only wx_fmt" {
   let url = "https://mmbiz.qpic.cn/a?tp=jpeg"
   assert_eq(
-    @core.normalize_image_url(url),
+    @lib.normalize_image_url(url),
     "https://mmbiz.qpic.cn/a?tp=jpeg&wx_fmt=png",
   )
 }
 
 ///|
 test "normalize - empty input unchanged" {
-  assert_eq(@core.normalize_image_url(""), "")
+  assert_eq(@lib.normalize_image_url(""), "")
 }
 
 // decide_referrer_policy edge cases
 
 ///|
 test "policy - empty input uses no-referrer" {
-  assert_eq(@core.decide_referrer_policy(""), "no-referrer")
+  assert_eq(@lib.decide_referrer_policy(""), "no-referrer")
 }
 
 // sanitize_filename edge cases
@@ -177,25 +177,25 @@ test "sanitize - only invalid ascii become underscores" {
     '<'.to_string() +
     '>'.to_string() +
     '|'.to_string()
-  assert_eq(@core.sanitize_filename(s), "_________")
+  assert_eq(@lib.sanitize_filename(s), "_________")
 }
 
 ///|
 test "sanitize - unicode preserved" {
-  assert_eq(@core.sanitize_filename("文档V1"), "文档V1")
+  assert_eq(@lib.sanitize_filename("文档V1"), "文档V1")
 }
 
 ///|
 test "sanitize - long invalid chars clamp to 120" {
   let s = repeat('/', 200)
   let want = repeat('_', 120)
-  assert_eq(@core.sanitize_filename(s), want)
+  assert_eq(@lib.sanitize_filename(s), want)
 }
 
 ///|
 test "sanitize - exactly 120 length kept" {
   let s = repeat('x', 120)
-  assert_eq(@core.sanitize_filename(s), s)
+  assert_eq(@lib.sanitize_filename(s), s)
 }
 
 // ===== str_contains tests (merged) =====
@@ -203,53 +203,53 @@ test "sanitize - exactly 120 length kept" {
 ///|
 /// Tests for internal helper `str_contains`
 test "str_contains - empty needle true for non-empty" {
-  assert_eq(@core.str_contains("abc", ""), true)
+  assert_eq(@lib.str_contains("abc", ""), true)
 }
 
 ///|
 test "str_contains - empty needle true for empty" {
-  assert_eq(@core.str_contains("", ""), true)
+  assert_eq(@lib.str_contains("", ""), true)
 }
 
 ///|
 test "str_contains - empty haystack and non-empty needle false" {
-  assert_eq(@core.str_contains("", "a"), false)
+  assert_eq(@lib.str_contains("", "a"), false)
 }
 
 ///|
 test "str_contains - match at start" {
-  assert_eq(@core.str_contains("abc", "ab"), true)
+  assert_eq(@lib.str_contains("abc", "ab"), true)
 }
 
 ///|
 test "str_contains - match in middle" {
-  assert_eq(@core.str_contains("abcde", "cd"), true)
+  assert_eq(@lib.str_contains("abcde", "cd"), true)
 }
 
 ///|
 test "str_contains - match at end" {
-  assert_eq(@core.str_contains("abc", "bc"), true)
+  assert_eq(@lib.str_contains("abc", "bc"), true)
 }
 
 ///|
 test "str_contains - no match" {
-  assert_eq(@core.str_contains("abc", "x"), false)
+  assert_eq(@lib.str_contains("abc", "x"), false)
 }
 
 ///|
 test "str_contains - needle longer than haystack" {
-  assert_eq(@core.str_contains("ab", "abc"), false)
+  assert_eq(@lib.str_contains("ab", "abc"), false)
 }
 
 ///|
 test "str_contains - overlapping pattern" {
   // "aaaab" contains "aaab" starting at index 1
-  assert_eq(@core.str_contains("aaaab", "aaab"), true)
+  assert_eq(@lib.str_contains("aaaab", "aaab"), true)
 }
 
 ///|
 test "str_contains - unicode code unit preserved" {
-  assert_eq(@core.str_contains("ab文cd", "文"), true)
+  assert_eq(@lib.str_contains("ab文cd", "文"), true)
 }
 
 ///|
@@ -260,42 +260,33 @@ test "str_contains - large haystack scan" {
     s = s + "a"
     i = i + 1
   }
-  assert_eq(@core.str_contains(s, "aab"), false)
-  assert_eq(@core.str_contains(s + "b", "aab"), true)
+  assert_eq(@lib.str_contains(s, "aab"), false)
+  assert_eq(@lib.str_contains(s + "b", "aab"), true)
 }
 
 ///|
 test "escape_html - surrogate pair becomes underscores" {
-  assert_eq(@core.escape_html("A🙂B"), "A__B")
+  assert_eq(@lib.escape_html("A🙂B"), "A__B")
 }
 
 ///|
 test "escape_attr - basic entities incl quotes" {
   let input = "Tom's \"hat\" & <tag>"
   let want = "Tom&#39;s &quot;hat&quot; &amp; &lt;tag&gt;"
-  assert_eq(@core.escape_attr(input), want)
+  assert_eq(@lib.escape_attr(input), want)
 }
 
 ///|
 test "escape_attr - surrogate pair becomes underscores" {
-  assert_eq(@core.escape_attr("A🙂B"), "A__B")
+  assert_eq(@lib.escape_attr("A🙂B"), "A__B")
 }
 
 ///|
 test "ensure_wechat_cdn_params - parity with normalize_image_url" {
   let url1 = "https://example.com/a.png"
-  assert_eq(
-    @core.ensure_wechat_cdn_params(url1),
-    @core.normalize_image_url(url1),
-  )
+  assert_eq(@lib.ensure_wechat_cdn_params(url1), @lib.normalize_image_url(url1))
   let url2 = "https://mmbiz.qpic.cn/a/b.png"
-  assert_eq(
-    @core.ensure_wechat_cdn_params(url2),
-    @core.normalize_image_url(url2),
-  )
+  assert_eq(@lib.ensure_wechat_cdn_params(url2), @lib.normalize_image_url(url2))
   let url3 = "https://mmbiz.qpic.cn/a/b.png?wx_fmt=jpeg"
-  assert_eq(
-    @core.ensure_wechat_cdn_params(url3),
-    @core.normalize_image_url(url3),
-  )
+  assert_eq(@lib.ensure_wechat_cdn_params(url3), @lib.normalize_image_url(url3))
 }

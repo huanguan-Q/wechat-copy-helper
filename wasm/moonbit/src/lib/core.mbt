@@ -3,7 +3,7 @@
 
 ///|
 /// Return true if `haystack` contains `needle` as a UTF-16 code-unit substring (ASCII-safe).
-fn str_contains(haystack : String, needle : String) -> Bool {
+pub fn str_contains(haystack : String, needle : String) -> Bool {
   let hl = haystack.length()
   let nl = needle.length()
   if nl == 0 {

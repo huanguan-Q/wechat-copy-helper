@@ -1,5 +1,0 @@
-{
-  "import": [
-    { "path": "wechat_copy_helper_wasm", "alias": "lib" }
-  ]
-}
