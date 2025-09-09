@@ -14,6 +14,6 @@ wasm/moonbit/.mooncakes/
 wasm/target/
 
 # MoonBit coverage reports
+# Keep ignores scoped to the subproject to avoid accidental root-level matches
 wasm/moonbit/_coverage/
 wasm/moonbit/coverage-html/
-coverage-html/
