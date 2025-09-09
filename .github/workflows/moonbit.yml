@@ -57,6 +57,7 @@ jobs:
       - name: Run tests
         run: |
           moon coverage clean
+          moon -C tests coverage clean
           moon test --enable-coverage
           moon -C tests test --enable-coverage
 
@@ -67,7 +68,7 @@ jobs:
 
       - name: Coverage (summary+HTML, enforce >=80%)
         run: |
-          moon coverage report -f summary | tee /tmp/cov.txt
+          moon -C tests coverage report -f summary | tee /tmp/cov.txt
           total_line=$(grep -E 'Total:\s*[0-9]+/[0-9]+' /tmp/cov.txt | tail -n1)
           echo "$total_line"
           nums=$(echo "$total_line" | sed -n 's/Total: \([0-9]\+\)\/\([0-9]\+\)/\1 \2/p')
@@ -76,7 +77,7 @@ jobs:
           pct=$(awk -v c="$covered" -v t="$total" 'BEGIN { printf "%.2f", (c/t)*100 }')
           echo "Coverage: $pct%"
           awk -v p="$pct" 'BEGIN { if (p+0 < 80.0) { exit 1 } }' || { echo "Coverage below 80%"; exit 1; }
-          moon coverage report -f html -o coverage-html
+          moon -C tests coverage report -f html -o ../coverage-html
 
       - name: Upload coverage HTML artifact
         uses: actions/upload-artifact@v4
