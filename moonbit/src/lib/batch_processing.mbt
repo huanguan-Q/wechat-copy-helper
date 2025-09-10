@@ -2,6 +2,7 @@
 /// Batch processing optimization module
 /// Provides parallel processing, memory pooling, and batch API design for high-performance operations
 
+///|
 /// Batch processing configuration
 struct BatchConfig {
   batch_size : Int
@@ -10,6 +11,7 @@ struct BatchConfig {
   timeout_ms : Int
 }
 
+///|
 /// Processing result with metrics
 struct BatchResult[T] {
   results : Array[T]
@@ -19,6 +21,7 @@ struct BatchResult[T] {
   average_time_per_item : Double
 }
 
+///|
 /// Memory pool for string operations
 struct StringPool {
   available_buffers : Array[String]
@@ -26,6 +29,7 @@ struct StringPool {
   max_pool_size : Int
 }
 
+///|
 /// Batch operation context
 struct BatchContext {
   config : BatchConfig
@@ -33,22 +37,19 @@ struct BatchContext {
   start_time : Int
 }
 
+///|
 /// Default batch configuration
 let default_batch_config : BatchConfig = {
   batch_size: 100,
   max_concurrent: 4,
   enable_memory_pool: true,
-  timeout_ms: 30000
+  timeout_ms: 30000,
 }
 
 ///|
 /// Create a new string pool for memory optimization
 pub fn create_string_pool(buffer_size : Int, max_pool_size : Int) -> StringPool {
-  {
-    available_buffers: [],
-    buffer_size,
-    max_pool_size
-  }
+  { available_buffers: [], buffer_size, max_pool_size }
 }
 
 ///|
@@ -76,127 +77,139 @@ fn return_buffer_to_pool(pool : StringPool, buffer : String) -> Unit {
 
 ///|
 /// Batch normalize image URLs with optimized processing
-pub fn batch_normalize_image_urls(urls : Array[String], config : BatchConfig) -> BatchResult[String] {
+pub fn batch_normalize_image_urls(
+  urls : Array[String],
+  config : BatchConfig,
+) -> BatchResult[String] {
   let context = create_batch_context(config)
   let results : Array[String] = []
   let mut processed = 0
   let failed = 0
-  
+
   // Process in batches
   let batch_count = (urls.length() + config.batch_size - 1) / config.batch_size
   let mut batch_index = 0
-  
   while batch_index < batch_count {
     let start_idx = batch_index * config.batch_size
     let end_idx = min_int(start_idx + config.batch_size, urls.length())
-    
+
     // Process current batch
     let batch_results = process_url_batch(urls, start_idx, end_idx, context)
-    
     for result in batch_results {
       results.push(result)
       processed = processed + 1
     }
-    
     batch_index = batch_index + 1
   }
-  
   let end_time = get_current_time_ms()
   let total_time = end_time - context.start_time
-  let avg_time = if processed > 0 { total_time.to_double() / processed.to_double() } else { 0.0 }
-  
+  let avg_time = if processed > 0 {
+    total_time.to_double() / processed.to_double()
+  } else {
+    0.0
+  }
   {
     results,
     processed_count: processed,
     failed_count: failed,
     total_time_ms: total_time,
-    average_time_per_item: avg_time
+    average_time_per_item: avg_time,
   }
 }
 
 ///|
 /// Batch sanitize filenames with memory pool optimization
-pub fn batch_sanitize_filenames(filenames : Array[String], config : BatchConfig) -> BatchResult[String] {
+pub fn batch_sanitize_filenames(
+  filenames : Array[String],
+  config : BatchConfig,
+) -> BatchResult[String] {
   let context = create_batch_context(config)
   let results : Array[String] = []
   let mut processed = 0
   let failed = 0
-  
   for filename in filenames {
     let sanitized = if config.enable_memory_pool {
       sanitize_filename_with_pool(filename, context.string_pool)
     } else {
       sanitize_filename(filename)
     }
-    
     results.push(sanitized)
     processed = processed + 1
   }
-  
   let end_time = get_current_time_ms()
   let total_time = end_time - context.start_time
-  let avg_time = if processed > 0 { total_time.to_double() / processed.to_double() } else { 0.0 }
-  
+  let avg_time = if processed > 0 {
+    total_time.to_double() / processed.to_double()
+  } else {
+    0.0
+  }
   {
     results,
     processed_count: processed,
     failed_count: failed,
     total_time_ms: total_time,
-    average_time_per_item: avg_time
+    average_time_per_item: avg_time,
   }
 }
 
 ///|
 /// Batch content analysis with parallel processing simulation
-pub fn batch_analyze_content(contents : Array[String], config : BatchConfig) -> BatchResult[AnalysisResult] {
+pub fn batch_analyze_content(
+  contents : Array[String],
+  config : BatchConfig,
+) -> BatchResult[AnalysisResult] {
   let context = create_batch_context(config)
   let results : Array[AnalysisResult] = []
   let mut processed = 0
   let failed = 0
-  
+
   // Simulate parallel processing by dividing work
   let chunk_size = max_int(1, contents.length() / config.max_concurrent)
   let mut chunk_index = 0
-  
   while chunk_index * chunk_size < contents.length() {
     let start_idx = chunk_index * chunk_size
     let end_idx = min_int(start_idx + chunk_size, contents.length())
-    
+
     // Process chunk (simulated parallel execution)
-    let chunk_results = process_content_chunk(contents, start_idx, end_idx, config)
-    
+    let chunk_results = process_content_chunk(
+      contents, start_idx, end_idx, config,
+    )
     for result in chunk_results {
       results.push(result)
       processed = processed + 1
     }
-    
     chunk_index = chunk_index + 1
   }
-  
   let end_time = get_current_time_ms()
   let total_time = end_time - context.start_time
-  let avg_time = if processed > 0 { total_time.to_double() / processed.to_double() } else { 0.0 }
-  
+  let avg_time = if processed > 0 {
+    total_time.to_double() / processed.to_double()
+  } else {
+    0.0
+  }
   {
     results,
     processed_count: processed,
     failed_count: failed,
     total_time_ms: total_time,
-    average_time_per_item: avg_time
+    average_time_per_item: avg_time,
   }
 }
 
 ///|
 /// Batch string contains operations with optimization
-pub fn batch_string_contains(haystacks : Array[String], needles : Array[String], config : BatchConfig) -> BatchResult[Bool] {
+pub fn batch_string_contains(
+  haystacks : Array[String],
+  needles : Array[String],
+  config : BatchConfig,
+) -> BatchResult[Bool] {
   let context = create_batch_context(config)
   let results : Array[Bool] = []
   let mut processed = 0
   let failed = 0
-  
+
   // Ensure arrays have same length
   let min_length = min_int(haystacks.length(), needles.length())
-  
   let mut i = 0
   while i < min_length {
     let contains_result = str_contains(haystacks[i], needles[i])
@@ -204,36 +217,41 @@ pub fn batch_string_contains(haystacks : Array[String], needles : Array[String],
     processed = processed + 1
     i = i + 1
   }
-  
   let end_time = get_current_time_ms()
   let total_time = end_time - context.start_time
-  let avg_time = if processed > 0 { total_time.to_double() / processed.to_double() } else { 0.0 }
-  
+  let avg_time = if processed > 0 {
+    total_time.to_double() / processed.to_double()
+  } else {
+    0.0
+  }
   {
     results,
     processed_count: processed,
     failed_count: failed,
     total_time_ms: total_time,
-    average_time_per_item: avg_time
+    average_time_per_item: avg_time,
   }
 }
 
 ///|
 /// Advanced batch processing with custom operation
-pub fn batch_process_custom[T, R](items : Array[T], operation : (T) -> R, config : BatchConfig) -> BatchResult[R] {
+pub fn[T, R] batch_process_custom(
+  items : Array[T],
+  operation : (T) -> R,
+  config : BatchConfig,
+) -> BatchResult[R] {
   let context = create_batch_context(config)
   let results : Array[R] = []
   let mut processed = 0
   let failed = 0
-  
+
   // Process items in batches with memory management
   let batch_count = (items.length() + config.batch_size - 1) / config.batch_size
   let mut batch_index = 0
-  
   while batch_index < batch_count {
     let start_idx = batch_index * config.batch_size
     let end_idx = min_int(start_idx + config.batch_size, items.length())
-    
+
     // Process current batch
     let mut i = start_idx
     while i < end_idx {
@@ -242,25 +260,26 @@ pub fn batch_process_custom[T, R](items : Array[T], operation : (T) -> R, config
       processed = processed + 1
       i = i + 1
     }
-    
+
     // Simulate memory cleanup between batches
     if config.enable_memory_pool {
       cleanup_batch_memory(context)
     }
-    
     batch_index = batch_index + 1
   }
-  
   let end_time = get_current_time_ms()
   let total_time = end_time - context.start_time
-  let avg_time = if processed > 0 { total_time.to_double() / processed.to_double() } else { 0.0 }
-  
+  let avg_time = if processed > 0 {
+    total_time.to_double() / processed.to_double()
+  } else {
+    0.0
+  }
   {
     results,
     processed_count: processed,
     failed_count: failed,
     total_time_ms: total_time,
-    average_time_per_item: avg_time
+    average_time_per_item: avg_time,
   }
 }
 
@@ -274,41 +293,42 @@ fn create_batch_context(config : BatchConfig) -> BatchContext {
   } else {
     create_string_pool(0, 0)
   }
-  
-  {
-    config,
-    string_pool,
-    start_time: get_current_time_ms()
-  }
+  { config, string_pool, start_time: get_current_time_ms() }
 }
 
 ///|
 /// Process a batch of URLs
-fn process_url_batch(urls : Array[String], start_idx : Int, end_idx : Int, context : BatchContext) -> Array[String] {
+fn process_url_batch(
+  urls : Array[String],
+  start_idx : Int,
+  end_idx : Int,
+  context : BatchContext,
+) -> Array[String] {
   let results : Array[String] = []
   let mut i = start_idx
-  
   while i < end_idx {
     let normalized = normalize_image_url(urls[i])
     results.push(normalized)
     i = i + 1
   }
-  
   results
 }
 
 ///|
 /// Process a chunk of content for analysis
-fn process_content_chunk(contents : Array[String], start_idx : Int, end_idx : Int, config : BatchConfig) -> Array[AnalysisResult] {
+fn process_content_chunk(
+  contents : Array[String],
+  start_idx : Int,
+  end_idx : Int,
+  config : BatchConfig,
+) -> Array[AnalysisResult] {
   let results : Array[AnalysisResult] = []
   let mut i = start_idx
-  
   while i < end_idx {
     let analysis = analyze_content_comprehensive(contents[i], 10)
     results.push(analysis)
     i = i + 1
   }
-  
   results
 }
 
@@ -317,13 +337,12 @@ fn process_content_chunk(contents : Array[String], start_idx : Int, end_idx : In
 fn sanitize_filename_with_pool(filename : String, pool : StringPool) -> String {
   // Get buffer from pool
   let buffer = get_buffer_from_pool(pool)
-  
+
   // Perform sanitization (reuse existing function)
   let result = sanitize_filename(filename)
-  
+
   // Return buffer to pool
   return_buffer_to_pool(pool, buffer)
-  
   result
 }
 
@@ -339,13 +358,21 @@ fn cleanup_batch_memory(context : BatchContext) -> Unit {
 ///|
 /// Get minimum of two integers
 fn min_int(a : Int, b : Int) -> Int {
-  if a < b { a } else { b }
+  if a < b {
+    a
+  } else {
+    b
+  }
 }
 
 ///|
 /// Get maximum of two integers
 fn max_int(a : Int, b : Int) -> Int {
-  if a > b { a } else { b }
+  if a > b {
+    a
+  } else {
+    b
+  }
 }
 
 ///|
@@ -357,6 +384,7 @@ fn create_empty_string(capacity : Int) -> String {
 
 // ========== Performance Monitoring Integration ==========
 
+///|
 /// Performance metrics for batch operations
 struct BatchMetrics {
   operation_name : String
@@ -370,13 +398,18 @@ struct BatchMetrics {
 
 ///|
 /// Calculate batch performance metrics
-pub fn calculate_batch_metrics[T](result : BatchResult[T], operation_name : String, batch_size : Int) -> BatchMetrics {
+pub fn[T] calculate_batch_metrics(
+  result : BatchResult[T],
+  operation_name : String,
+  batch_size : Int,
+) -> BatchMetrics {
   let throughput = if result.total_time_ms > 0 {
-    (result.processed_count.to_double() * 1000.0) / result.total_time_ms.to_double()
+    result.processed_count.to_double() *
+    1000.0 /
+    result.total_time_ms.to_double()
   } else {
     0.0
   }
-  
   {
     operation_name,
     total_items: result.processed_count,
@@ -384,7 +417,7 @@ pub fn calculate_batch_metrics[T](result : BatchResult[T], operation_name : Stri
     total_time_ms: result.total_time_ms,
     throughput_per_second: throughput,
     memory_usage_mb: estimate_memory_usage(result.processed_count),
-    cpu_usage_percent: estimate_cpu_usage(result.total_time_ms)
+    cpu_usage_percent: estimate_cpu_usage(result.total_time_ms),
   }
 }
 
@@ -401,9 +434,12 @@ fn estimate_cpu_usage(processing_time_ms : Int) -> Double {
   // Simplified CPU usage estimation
   let base_usage = 10.0
   let time_factor = processing_time_ms.to_double() / 1000.0
-  
-  let usage = base_usage + (time_factor * 2.0)
-  if usage > 100.0 { 100.0 } else { usage }
+  let usage = base_usage + time_factor * 2.0
+  if usage > 100.0 {
+    100.0
+  } else {
+    usage
+  }
 }
 
 // ========== Batch API Convenience Functions ==========
@@ -417,14 +453,18 @@ pub fn quick_batch_normalize_urls(urls : Array[String]) -> Array[String] {
 
 ///|
 /// Quick batch sanitize with default config
-pub fn quick_batch_sanitize_filenames(filenames : Array[String]) -> Array[String] {
+pub fn quick_batch_sanitize_filenames(
+  filenames : Array[String],
+) -> Array[String] {
   let result = batch_sanitize_filenames(filenames, default_batch_config)
   result.results
 }
 
 ///|
 /// Quick batch content analysis with default config
-pub fn quick_batch_analyze_content(contents : Array[String]) -> Array[AnalysisResult] {
+pub fn quick_batch_analyze_content(
+  contents : Array[String],
+) -> Array[AnalysisResult] {
   let result = batch_analyze_content(contents, default_batch_config)
   result.results
 }
@@ -436,7 +476,7 @@ pub fn create_large_dataset_config() -> BatchConfig {
     batch_size: 500,
     max_concurrent: 8,
     enable_memory_pool: true,
-    timeout_ms: 60000
+    timeout_ms: 60000,
   }
 }
 
@@ -447,6 +487,6 @@ pub fn create_realtime_config() -> BatchConfig {
     batch_size: 50,
     max_concurrent: 2,
     enable_memory_pool: false,
-    timeout_ms: 5000
+    timeout_ms: 5000,
   }
 }

@@ -7,7 +7,7 @@
 pub fn str_contains(haystack : String, needle : String) -> Bool {
   let hl = haystack.length()
   let nl = needle.length()
-  
+
   // Early returns for edge cases
   if nl == 0 {
     return true
@@ -15,7 +15,7 @@ pub fn str_contains(haystack : String, needle : String) -> Bool {
   if nl > hl {
     return false
   }
-  
+
   // Single character optimization
   if nl == 1 {
     let target = needle[0]
@@ -28,7 +28,7 @@ pub fn str_contains(haystack : String, needle : String) -> Bool {
     }
     return false
   }
-  
+
   // Boyer-Moore-like optimization: check last character first
   let last_char = needle[nl - 1]
   let mut i = nl - 1
@@ -63,40 +63,35 @@ pub fn normalize_image_url(input : String) -> String {
   if input.length() == 0 {
     return input
   }
-  
+
   // Performance check for extremely long URLs
   if input.length() > 2000 {
     // For very long URLs, still process but could be optimized further
     // In a real implementation, this might log a warning
   }
-  
   let host = "mmbiz.qpic.cn"
   if !str_contains(input, host) {
     return input
   }
-  
   let has_wx = str_contains(input, "wx_fmt=")
   let has_tp = str_contains(input, "tp=")
-  
+
   // Early return if both parameters already exist
   if has_wx && has_tp {
     return input
   }
-  
+
   // Build suffix efficiently
   let has_q = str_contains(input, "?")
   let mut sep = if has_q { "&" } else { "?" }
   let mut suffix = ""
-  
   if !has_wx {
     suffix = suffix + sep + "wx_fmt=png"
     sep = "&"
   }
-  
   if !has_tp {
     suffix = suffix + sep + "tp=webp"
   }
-  
   input + suffix
 }
 
@@ -116,15 +111,14 @@ pub fn decide_referrer_policy(input : String) -> String {
 /// If input is empty, defaults to "file". Optimized version maintaining original behavior.
 pub fn sanitize_filename(name : String) -> String {
   let base = if name.length() == 0 { "file" } else { name }
-  
+
   // Use original algorithm but with some optimizations
   let mut i = 0
   let mut out = ""
   let mut count = 0
-  
   while i < base.length() && count < 120 {
     let code = base[i]
-    
+
     // Check for invalid filename characters first (faster path)
     if is_invalid_filename_char(code) {
       out = out + "_"
@@ -132,7 +126,7 @@ pub fn sanitize_filename(name : String) -> String {
       count = count + 1
       continue
     }
-    
+
     // Convert current code unit to Char if possible; otherwise replace with '_'
     match code.to_char() {
       Some(c) => {
@@ -148,7 +142,6 @@ pub fn sanitize_filename(name : String) -> String {
       }
     }
   }
-  
   out
 }
 

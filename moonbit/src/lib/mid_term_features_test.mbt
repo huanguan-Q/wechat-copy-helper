@@ -93,7 +93,9 @@ test "performance_monitor - core monitoring" {
 test "performance_monitor - batch monitoring" {
   let items = ["item1", "item2"]
   let identity_fn = fn(s : String) -> String { s }
-  let measurements = @lib.monitor_batch_operation("identity", items, identity_fn)
+  let measurements = @lib.monitor_batch_operation(
+    "identity", items, identity_fn,
+  )
   assert_eq(measurements.length(), 2)
 }
 

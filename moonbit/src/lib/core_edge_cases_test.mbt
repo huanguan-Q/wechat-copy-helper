@@ -120,7 +120,7 @@ test "decide_referrer_policy - empty string" {
 test "decide_referrer_policy - case sensitive" {
   assert_eq(
     @lib.decide_referrer_policy("https://MMBIZ.QPIC.CN/image.jpg"),
-    "no-referrer"
+    "no-referrer",
   )
 }
 
