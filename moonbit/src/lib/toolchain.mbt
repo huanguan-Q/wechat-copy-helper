@@ -351,8 +351,8 @@ pub fn profile_application(
   profile_config : ProfileConfig,
 ) -> ToolResult {
   let start_time = get_current_time_ms()
-  let mut errors : Array[String] = []
-  let mut warnings : Array[String] = []
+  let errors : Array[String] = []
+  let warnings : Array[String] = []
 
   // Start profiling session
   let profiler = start_profiler(executable_path, profile_config)
@@ -656,18 +656,18 @@ struct InstallResult {
 // In a real toolchain, these would interface with actual tools
 
 ///|
-fn apply_formatting_rules(code : String, config : FormatConfig) -> String {
+fn apply_formatting_rules(code : String, _config : FormatConfig) -> String {
   // Simplified formatting
   code
 }
 
 ///|
-fn check_style_violations(code : String) -> Array[String] {
+fn check_style_violations(_code : String) -> Array[String] {
   []
 }
 
 ///|
-fn apply_lint_rule(code : String, rule : String) -> Array[String] {
+fn apply_lint_rule(_code : String, _rule : String) -> Array[String] {
   []
 }
 
@@ -677,7 +677,7 @@ fn is_error_violation(violation : String) -> Bool {
 }
 
 ///|
-fn execute_test_file(file : String, config : TestConfig) -> TestFileResults {
+fn execute_test_file(_file : String, _config : TestConfig) -> TestFileResults {
   { total: 10, passed: 9, failed: 1, failures: ["Test assertion failed"] }
 }
 
@@ -696,7 +696,7 @@ fn generate_test_summary(
   total : Int,
   passed : Int,
   failed : Int,
-  results : Array[String],
+  _results : Array[String],
 ) -> String {
   "Tests: " +
   total.to_string() +
@@ -708,7 +708,7 @@ fn generate_test_summary(
 }
 
 ///|
-fn parse_package_metadata(file : String) -> PackageMetadata {
+fn parse_package_metadata(_file : String) -> PackageMetadata {
   {
     name: "example-package",
     version: "1.0.0",
@@ -722,17 +722,17 @@ fn parse_package_metadata(file : String) -> PackageMetadata {
 }
 
 ///|
-fn install_single_dependency(dep : PackageDependency) -> InstallResult {
+fn install_single_dependency(_dep : PackageDependency) -> InstallResult {
   { success: true, error: "" }
 }
 
 ///|
-fn validate_package_structure(dir : String) -> Bool {
+fn validate_package_structure(_dir : String) -> Bool {
   true
 }
 
 ///|
-fn collect_package_files(dir : String, config : PackageConfig) -> Array[String] {
+fn collect_package_files(_dir : String, _config : PackageConfig) -> Array[String] {
   ["src/lib.mbt", "README.md"]
 }
 
@@ -743,64 +743,64 @@ fn generate_package_metadata(config : PackageConfig) -> String {
 
 ///|
 fn create_package_archive(
-  contents : Array[String],
-  metadata : String,
+  _contents : Array[String],
+  _metadata : String,
 ) -> String {
   "package.tar.gz"
 }
 
 ///|
-fn initialize_debugger(path : String, config : DebugConfig) -> DebuggerSession {
+fn initialize_debugger(_path : String, _config : DebugConfig) -> DebuggerSession {
   { id: "debug-session-1", success: true, error: "" }
 }
 
 ///|
-fn set_breakpoint(session_id : String, breakpoint : String) -> Unit {
+fn set_breakpoint(_session_id : String, _breakpoint : String) -> Unit {
   ()
 }
 
 ///|
-fn get_current_stack_frame(session_id : String) -> StackFrame {
+fn get_current_stack_frame(_session_id : String) -> StackFrame {
   { file: "src/main.mbt", line: 42, column: 10, function: "main" }
 }
 
 ///|
-fn get_local_variables(session_id : String) -> Array[(String, String)] {
+fn get_local_variables(_session_id : String) -> Array[(String, String)] {
   [("x", "42"), ("y", "hello")]
 }
 
 ///|
-fn get_call_stack(session_id : String) -> Array[String] {
+fn get_call_stack(_session_id : String) -> Array[String] {
   ["main()", "process_data()", "validate_input()"]
 }
 
 ///|
-fn start_profiler(path : String, config : ProfileConfig) -> ProfilerSession {
+fn start_profiler(_path : String, _config : ProfileConfig) -> ProfilerSession {
   { session_id: "profile-session-1", success: true, error: "" }
 }
 
 ///|
-fn run_with_profiling(session_id : String, duration : Int) -> Bool {
+fn run_with_profiling(_session_id : String, _duration : Int) -> Bool {
   true
 }
 
 ///|
-fn collect_profile_data(session_id : String) -> String {
+fn collect_profile_data(_session_id : String) -> String {
   "Profile data collected"
 }
 
 ///|
-fn generate_profiling_report(data : String) -> String {
+fn generate_profiling_report(_data : String) -> String {
   "Profiling Report:\nCPU Usage: 45%\nMemory Usage: 128MB\nHot Functions: main(), process_data()"
 }
 
 ///|
-fn validate_project_structure(dir : String) -> ValidationResult {
+fn validate_project_structure(_dir : String) -> ValidationResult {
   { success: true, errors: [], warnings: [] }
 }
 
 ///|
-fn format_project_sources(dir : String) -> ToolResult {
+fn format_project_sources(_dir : String) -> ToolResult {
   {
     tool_type: Formatter,
     success: true,
@@ -812,7 +812,7 @@ fn format_project_sources(dir : String) -> ToolResult {
 }
 
 ///|
-fn lint_project_sources(dir : String) -> ToolResult {
+fn lint_project_sources(_dir : String) -> ToolResult {
   {
     tool_type: Linter,
     success: true,
@@ -824,7 +824,7 @@ fn lint_project_sources(dir : String) -> ToolResult {
 }
 
 ///|
-fn run_project_tests(dir : String) -> ToolResult {
+fn run_project_tests(_dir : String) -> ToolResult {
   {
     tool_type: Tester,
     success: true,
@@ -836,12 +836,12 @@ fn run_project_tests(dir : String) -> ToolResult {
 }
 
 ///|
-fn collect_source_files(dir : String) -> Array[String] {
+fn collect_source_files(_dir : String) -> Array[String] {
   ["src/lib/core.mbt", "src/main/main.mbt"]
 }
 
 ///|
-fn generate_documentation(dir : String) -> ToolResult {
+fn generate_documentation(_dir : String) -> ToolResult {
   {
     tool_type: Compiler,
     success: true,
