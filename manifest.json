@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "微信内容研究助手",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "用于学术研究和内容分析的微信公众号辅助工具，帮助研究人员更好地分析和引用内容。",
   "permissions": [
     "activeTab",
@@ -19,7 +19,7 @@
   "content_scripts": [
     {
       "matches": ["https://mp.weixin.qq.com/*"],
-      "js": ["wasmLoader.js", "content.js"],
+      "js": ["wasmLoader.js", "audio-utils.js", "version-manager.js", "content.js"],
       "css": ["styles.css"],
       "run_at": "document_end"
     }

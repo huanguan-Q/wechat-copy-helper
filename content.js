@@ -220,6 +220,12 @@
                         
                         console.log('尝试复制图片:', imageUrl);
                         
+                        // 如果图片使用懒加载，需要先设置正确的src
+                        if (img.dataset.src && img.src !== img.dataset.src) {
+                            img.src = imageUrl;
+                            console.log('更新图片src为:', imageUrl);
+                        }
+                        
                         // 基础图片复制方法
                         await copyImageToClipboard(img, imageUrl);
                         
@@ -243,6 +249,10 @@
             const success = await fallbackCanvasCopy(img);
             if (success) {
                 showMessage('✅ 图片已复制到剪贴板');
+            // 播放复制音效
+            if (shouldPlayAudio()) {
+                window.WechatAudio.playCopySound();
+            }
                 return;
             }
         } catch (error) {
@@ -250,22 +260,68 @@
         }
         
         // 降级方案 - 下载文件
-        downloadImageAsFile(img);
-        showMessage('❌ 复制失败，已下载图片文件');
+        try {
+            await downloadImageAsFile(img);
+            showMessage('❌ 复制失败，已下载图片文件');
+        } catch (downloadError) {
+            console.error('下载也失败:', downloadError);
+            showMessage('❌ 复制和下载都失败，请手动保存');
+            // 最后的方案：打开新窗口
+            window.open(img.src || img.dataset.src, '_blank');
+        }
     }
     
 
     
+    // 等待图片加载完成
+    function waitForImageLoad(img) {
+        return new Promise((resolve, reject) => {
+            if (img.complete && img.naturalWidth > 0) {
+                resolve(img);
+                return;
+            }
+            
+            const onLoad = () => {
+                img.removeEventListener('load', onLoad);
+                img.removeEventListener('error', onError);
+                resolve(img);
+            };
+            
+            const onError = () => {
+                img.removeEventListener('load', onLoad);
+                img.removeEventListener('error', onError);
+                reject(new Error('图片加载失败'));
+            };
+            
+            img.addEventListener('load', onLoad);
+            img.addEventListener('error', onError);
+            
+            // 如果图片已经有错误状态
+            if (img.complete && img.naturalWidth === 0) {
+                reject(new Error('图片加载失败'));
+            }
+        });
+    }
+
     // 降级Canvas复制方案
     function fallbackCanvasCopy(img) {
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             try {
+                // 确保图片已加载
+                await waitForImageLoad(img);
+                
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
                 
-                // 使用图片的实际尺寸
+                // 使用图片的实际尺寸，确保不为0
                 const width = img.naturalWidth || img.width || 300;
                 const height = img.naturalHeight || img.height || 200;
+                
+                // 检查尺寸有效性
+                if (width <= 0 || height <= 0) {
+                    reject(new Error('图片尺寸无效'));
+                    return;
+                }
                 
                 canvas.width = width;
                 canvas.height = height;
@@ -303,13 +359,21 @@
     }
     
     // 下载图片文件（文件名经 Compute 规范化）
-    function downloadImageAsFile(img, index = Date.now()) {
+    async function downloadImageAsFile(img, index = Date.now()) {
         try {
+            // 确保图片已加载
+            await waitForImageLoad(img);
+            
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             
-            const width = img.naturalWidth || img.width;
-            const height = img.naturalHeight || img.height;
+            const width = img.naturalWidth || img.width || 300;
+            const height = img.naturalHeight || img.height || 200;
+            
+            // 检查尺寸有效性
+            if (width <= 0 || height <= 0) {
+                throw new Error('图片尺寸无效');
+            }
             
             canvas.width = width;
             canvas.height = height;
@@ -318,7 +382,7 @@
             ctx.fillStyle = 'white';
             ctx.fillRect(0, 0, width, height);
             
-            ctx.drawImage(img, 0, 0);
+            ctx.drawImage(img, 0, 0, width, height);
             
             const dataUrl = canvas.toDataURL('image/png', 0.95);
             const link = document.createElement('a');
@@ -693,6 +757,10 @@
                 }
 
                 showMessage('✅ 全文（含标题时间）已复制到剪贴板');
+                // 播放成功音效
+                if (shouldPlayAudio()) {
+                    window.WechatAudio.playSuccessSound();
+                }
             } catch (err) {
                 console.error('复制全文失败:', err);
                 // 兜底：再尝试纯文本
@@ -702,11 +770,42 @@
                     const fallbackText = buildMetaText(meta) + (root.innerText || root.textContent || '');
                     await navigator.clipboard.writeText(fallbackText);
                     showMessage('⚠️ 已降级为纯文本并复制成功');
+                    // 播放成功音效
+                    if (shouldPlayAudio()) {
+                        window.WechatAudio.playSuccessSound();
+                    }
                 } catch (_) {
                     showMessage('❌ 复制失败，请手动选择复制');
                 }
             }
         });
+    }
+
+    // 全局设置状态
+    let globalSettings = {
+        imageBypass: true,
+        textCopy: true,
+        quickCopy: true,
+        audioEnabled: true
+    };
+
+    // 监听来自弹窗的设置更新
+    if (typeof chrome !== 'undefined' && chrome.runtime) {
+        chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+            if (message.action === 'updateSettings') {
+                globalSettings = { ...globalSettings, ...message.settings };
+                // 更新音效设置
+                if (window.WechatAudio) {
+                    window.WechatAudio.setEnabled(globalSettings.audioEnabled);
+                }
+                console.log('设置已更新:', globalSettings);
+            }
+        });
+    }
+
+    // 检查音效播放条件
+    function shouldPlayAudio() {
+        return globalSettings.audioEnabled && window.WechatAudio && window.WechatAudio.isEnabled();
     }
 
     // 初始化入口
@@ -716,6 +815,11 @@
             removeCopyRestrictions();
             addCopyButtons();
             addFullTextCopyButton();
+            
+            // 初始化音效设置
+            if (window.WechatAudio) {
+                window.WechatAudio.setEnabled(globalSettings.audioEnabled);
+            }
         } catch (e) {
             console.error('初始化失败:', e);
         }

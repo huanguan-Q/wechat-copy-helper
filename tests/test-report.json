@@ -1,0 +1,20 @@
+{
+  "timestamp": "2025-09-09T14:44:59.479Z",
+  "results": {
+    "total": 7,
+    "passed": 5,
+    "failed": 2,
+    "errors": [
+      {
+        "test": "扩展加载",
+        "error": "无法找到扩展弹窗页面"
+      }
+    ]
+  },
+  "config": {
+    "extensionPath": "/Users/hongguan/Desktop/wechat-copy-helper",
+    "testUrl": "https://mp.weixin.qq.com/s/test-article",
+    "timeout": 30000,
+    "headless": false
+  }
+}

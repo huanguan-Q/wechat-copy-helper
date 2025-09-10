@@ -1,6 +1,6 @@
 {
   "name": "wechat-copy-helper",
-  "version": "0.0.0",
+  "version": "1.2.0",
   "private": true,
   "scripts": {
     "fmt:moon": "cd moonbit && moon fmt --check",
@@ -9,6 +9,17 @@
     "test:moon:doc": "cd moonbit && moon test --doc",
     "coverage:moon": "cd moonbit && moon coverage report -f summary && moon coverage report -f html -o coverage-html",
     "build:moon": "cd moonbit && moon build --release",
-    "build:wasm": "node scripts/build_wasm.mjs"
+    "build:wasm": "node scripts/build_wasm.mjs",
+    "test:e2e": "cd tests && npm run test:e2e",
+    "test:e2e:headless": "cd tests && npm run test:e2e:headless",
+    "test:setup": "cd tests && npm run test:setup",
+    "test:all": "npm run test:moon && npm run test:e2e:headless",
+    "ci": "npm run fmt:moon && npm run check:moon && npm run test:all && npm run build:wasm",
+    "version:current": "node scripts/version-manager.js current",
+    "version:patch": "node scripts/version-manager.js patch",
+    "version:minor": "node scripts/version-manager.js minor",
+    "version:major": "node scripts/version-manager.js major",
+    "version:set": "node scripts/version-manager.js set",
+    "version:sync": "node scripts/version-manager.js sync"
   }
 }

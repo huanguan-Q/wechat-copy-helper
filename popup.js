@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const imageBypassToggle = document.getElementById('imageBypass');
     const textCopyToggle = document.getElementById('textCopy');
     const quickCopyToggle = document.getElementById('quickCopy');
+    const audioEnabledToggle = document.getElementById('audioEnabled');
     const statusDiv = document.getElementById('status');
     const refreshBtn = document.getElementById('refreshBtn');
     const helpBtn = document.getElementById('helpBtn');
@@ -24,10 +25,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const licenseStatus = document.getElementById('licenseStatus');
     const buyLink = document.getElementById('buyLink');
 
-    // 购买链接（稍后可替换为你的 Lemon Squeezy Checkout 链接）
-    const CHECKOUT_URL = 'https://your-store.lemonsqueezy.com/checkout/buy/PRODUCT_VARIANT_ID';
-    // 代理 API 根地址（部署 Cloudflare Workers / Vercel Functions）
-    const LICENSE_API_BASE = 'https://your-worker.example.com/license';
+    // 购买链接 - 生产环境配置
+    const CHECKOUT_URL = 'https://wechat-helper.lemonsqueezy.com/checkout/buy/wechat-copy-helper-license';
+    // 许可证 API 代理地址 - 生产环境配置
+    const LICENSE_API_BASE = 'https://api.wechat-copy-helper.com/license';
 
     // ===== 存储封装（支持 Chrome Storage 与 localStorage 回退） =====
     const hasChromeStorage = (typeof chrome !== 'undefined') && chrome.storage && chrome.storage.sync;
@@ -120,6 +121,11 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     quickCopyToggle.addEventListener('change', function() {
+        saveSettings();
+        updateContentScript();
+    });
+    
+    audioEnabledToggle.addEventListener('change', function() {
         saveSettings();
         updateContentScript();
     });
@@ -287,16 +293,26 @@ document.addEventListener('DOMContentLoaded', function() {
         showHelp();
     });
     
+    // 变更日志按钮
+    const changelogBtn = document.getElementById('changelogBtn');
+    changelogBtn?.addEventListener('click', () => {
+        if (window.VersionManager) {
+            window.VersionManager.showChangelog();
+        }
+    });
+    
     // 加载设置
     async function loadSettings() {
         const items = await storage.get({
             imageBypass: true,
             textCopy: true,
-            quickCopy: true
+            quickCopy: true,
+            audioEnabled: true
         });
         imageBypassToggle.checked = !!items.imageBypass;
         textCopyToggle.checked = !!items.textCopy;
         quickCopyToggle.checked = !!items.quickCopy;
+        audioEnabledToggle.checked = !!items.audioEnabled;
     }
     
     // 保存设置
@@ -304,7 +320,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const settings = {
             imageBypass: imageBypassToggle.checked,
             textCopy: textCopyToggle.checked,
-            quickCopy: quickCopyToggle.checked
+            quickCopy: quickCopyToggle.checked,
+            audioEnabled: audioEnabledToggle.checked
         };
         storage.set(settings).then(() => {
             console.log('设置已保存:', settings);
@@ -321,7 +338,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     settings: {
                         imageBypass: imageBypassToggle.checked,
                         textCopy: textCopyToggle.checked,
-                        quickCopy: quickCopyToggle.checked
+                        quickCopy: quickCopyToggle.checked,
+                        audioEnabled: audioEnabledToggle.checked
                     }
                 });
             }
