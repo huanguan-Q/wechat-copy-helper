@@ -478,18 +478,20 @@
         tempDiv.innerHTML = htmlContent;
         
         const images = Array.from(tempDiv.querySelectorAll('img'));
-        for (const img of images) {
-            // 统一拿到原始URL
-            let src = img.getAttribute('src') || img.getAttribute('data-src') || (img.dataset ? img.dataset.src : '');
-            if (!src) {
-                // 无法确定来源，直接替换占位文本
-                const placeholder = document.createElement('span');
-                placeholder.textContent = '[图片缺失]';
-                img.replaceWith(placeholder);
-                continue;
-            }
-
+        
+        // 使用 Promise.allSettled 确保单个图片失败不会影响整体处理
+        const imagePromises = images.map(async (img, index) => {
             try {
+                // 统一拿到原始URL
+                let src = img.getAttribute('src') || img.getAttribute('data-src') || (img.dataset ? img.dataset.src : '');
+                if (!src) {
+                    // 无法确定来源，直接替换占位文本
+                    const placeholder = document.createElement('span');
+                    placeholder.textContent = '[图片缺失]';
+                    img.replaceWith(placeholder);
+                    return { index, success: false, reason: 'no_src' };
+                }
+
                 // 统一规范化URL
                 src = Compute.normalizeImageUrl(src);
                 const dataUrl = await fetchImageAsDataUrlWithProxy(src);
@@ -500,12 +502,24 @@
                 img.removeAttribute('crossorigin');
                 img.setAttribute('referrerpolicy', 'no-referrer');
                 if (!img.alt) img.alt = '[图片]';
+                return { index, success: true };
             } catch (e) {
+                console.warn(`图片 ${index} 处理失败:`, e.message);
                 // 拉取失败：使用透明占位，并给出文字提示
                 img.setAttribute('src', TRANSPARENT_PNG_DATA_URL);
                 img.setAttribute('data-inline-failed', 'true');
                 if (!img.alt) img.alt = '[图片不可用]';
+                return { index, success: false, reason: e.message };
             }
+        });
+        
+        // 等待所有图片处理完成，不管成功还是失败
+        const results = await Promise.allSettled(imagePromises);
+        const successCount = results.filter(r => r.status === 'fulfilled' && r.value.success).length;
+        const totalCount = images.length;
+        
+        if (totalCount > 0) {
+            console.log(`图片处理完成: ${successCount}/${totalCount} 成功`);
         }
         
         return tempDiv.innerHTML;

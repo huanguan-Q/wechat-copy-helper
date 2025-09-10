@@ -16,14 +16,26 @@ chrome.runtime.onInstalled.addListener(() => {
 // 简易图片代理（示例）
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'proxyImage') {
-    fetch(message.url || message.imageUrl)
-      .then(res => res.blob())
-      .then(blob => {
+    (async () => {
+      try {
+        const response = await fetch(message.url || message.imageUrl);
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        const blob = await response.blob();
         const reader = new FileReader();
-        reader.onload = () => sendResponse({ dataUrl: reader.result, success: true, blobUrl: reader.result });
+        reader.onload = () => {
+          sendResponse({ dataUrl: reader.result, success: true, blobUrl: reader.result });
+        };
+        reader.onerror = () => {
+          sendResponse({ error: 'Failed to read image data', success: false });
+        };
         reader.readAsDataURL(blob);
-      })
-      .catch(err => sendResponse({ error: String(err), success: false }));
+      } catch (err) {
+        console.warn('图片代理失败:', err.message);
+        sendResponse({ error: err.message, success: false });
+      }
+    })();
     return true;
   }
 });
