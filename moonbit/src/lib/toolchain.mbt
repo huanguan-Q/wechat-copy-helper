@@ -732,7 +732,10 @@ fn validate_package_structure(_dir : String) -> Bool {
 }
 
 ///|
-fn collect_package_files(_dir : String, _config : PackageConfig) -> Array[String] {
+fn collect_package_files(
+  _dir : String,
+  _config : PackageConfig,
+) -> Array[String] {
   ["src/lib.mbt", "README.md"]
 }
 
@@ -750,7 +753,10 @@ fn create_package_archive(
 }
 
 ///|
-fn initialize_debugger(_path : String, _config : DebugConfig) -> DebuggerSession {
+fn initialize_debugger(
+  _path : String,
+  _config : DebugConfig,
+) -> DebuggerSession {
   { id: "debug-session-1", success: true, error: "" }
 }
 
