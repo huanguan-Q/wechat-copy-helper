@@ -124,6 +124,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Setup MoonBit CLI
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          echo "$HOME/.moon/bin" >> $GITHUB_PATH
+
       - name: 配置 Git
         run: |
           git config --local user.email "action@github.com"
