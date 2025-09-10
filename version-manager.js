@@ -7,7 +7,7 @@
     // 版本管理器类
     class VersionManager {
         constructor() {
-            this.currentVersion = '1.1.0';
+            this.currentVersion = '1.2.0';
             this.storageKey = 'wechat_helper_version';
             this.changelogKey = 'wechat_helper_changelog_shown';
         }
@@ -96,9 +96,9 @@
         // 获取版本变更日志
         getChangelog(version) {
             const changelogs = {
-                '1.1.0': {
-                    title: '🎉 版本 1.1.0 更新',
-                    date: '2024-01-09',
+                '1.2.0': {
+                    title: '🎉 版本 1.2.0 更新',
+                    date: '2024-01-16',
                     features: [
                         {
                             icon: '🎵',
