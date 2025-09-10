@@ -293,13 +293,7 @@ document.addEventListener('DOMContentLoaded', function() {
         showHelp();
     });
     
-    // 变更日志按钮
-    const changelogBtn = document.getElementById('changelogBtn');
-    changelogBtn?.addEventListener('click', () => {
-        if (window.VersionManager) {
-            window.VersionManager.showChangelog();
-        }
-    });
+
     
     // 加载设置
     async function loadSettings() {

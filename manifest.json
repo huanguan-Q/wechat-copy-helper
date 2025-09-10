@@ -19,7 +19,7 @@
   "content_scripts": [
     {
       "matches": ["https://mp.weixin.qq.com/*"],
-      "js": ["wasmLoader.js", "audio-utils.js", "version-manager.js", "content.js"],
+      "js": ["wasmLoader.js", "audio-utils.js", "content.js"],
       "css": ["styles.css"],
       "run_at": "document_end"
     }
