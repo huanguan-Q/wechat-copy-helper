@@ -2,6 +2,21 @@
 
 (function() {
     'use strict';
+    
+    // 全局未捕获 Promise rejection 处理器
+    window.addEventListener('unhandledrejection', function(event) {
+        console.warn('未捕获的 Promise rejection:', event.reason);
+        // 阻止错误显示在浏览器控制台
+        event.preventDefault();
+    });
+    
+    // 全局错误处理器
+    window.addEventListener('error', function(event) {
+        if (event.error && event.error.message && event.error.message.includes('download all specified images')) {
+            console.warn('图片下载错误已被捕获:', event.error.message);
+            event.preventDefault();
+        }
+    });
 
     // 计算引擎：优先使用全局 wasmLoader.js 注入的 Compute，缺省回退 JS
     const Compute = (typeof window !== 'undefined' && window.Compute) ? window.Compute : (() => {

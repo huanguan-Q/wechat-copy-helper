@@ -3,6 +3,21 @@
 
 console.log('微信内容研究助手已安装 v1.2.0');
 
+// 全局未捕获 Promise rejection 处理器
+self.addEventListener('unhandledrejection', function(event) {
+  console.warn('后台脚本未捕获的 Promise rejection:', event.reason);
+  // 阻止错误显示在浏览器控制台
+  event.preventDefault();
+});
+
+// 全局错误处理器
+self.addEventListener('error', function(event) {
+  if (event.error && event.error.message && event.error.message.includes('download all specified images')) {
+    console.warn('后台脚本图片下载错误已被捕获:', event.error.message);
+    event.preventDefault();
+  }
+});
+
 chrome.runtime.onInstalled.addListener(() => {
   // 移除无用的右键菜单，仅保留安装通知
   chrome.notifications.create({
