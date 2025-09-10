@@ -3,17 +3,17 @@
 (function() {
     'use strict';
     
-    // 全局未捕获 Promise rejection 处理器
+    // 全局错误捕获 - 防止未捕获的 Promise rejection
     window.addEventListener('unhandledrejection', function(event) {
-        console.warn('未捕获的 Promise rejection:', event.reason);
-        // 阻止错误显示在浏览器控制台
+        console.warn('捕获到未处理的 Promise rejection:', event.reason);
+        // 阻止浏览器显示错误
         event.preventDefault();
     });
     
-    // 全局错误处理器
+    // 全局错误捕获 - 防止未捕获的异常
     window.addEventListener('error', function(event) {
-        if (event.error && event.error.message && event.error.message.includes('download all specified images')) {
-            console.warn('图片下载错误已被捕获:', event.error.message);
+        if (event.message && event.message.includes('Unable to download')) {
+            console.warn('捕获到图片下载相关错误:', event.message);
             event.preventDefault();
         }
     });
@@ -456,29 +456,48 @@
 
     // 将图片URL获取为 data:URL，失败时抛出错误；内部带有后台代理兜底
     async function fetchImageAsDataUrlWithProxy(url) {
+        // 添加超时包装函数
+        const withTimeout = (promise, timeoutMs = 10000) => {
+            return Promise.race([
+                promise,
+                new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('timeout')), timeoutMs)
+                )
+            ]);
+        };
+        
         const toDataUrl = (blob) => new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = reject;
-            reader.readAsDataURL(blob);
+            try {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = () => reject(new Error('FileReader failed'));
+                reader.readAsDataURL(blob);
+            } catch (e) {
+                reject(e);
+            }
         });
 
         // 先直接抓取
         try {
-            const resp = await fetch(url, { cache: 'no-store', referrerPolicy: 'no-referrer' });
+            const resp = await withTimeout(
+                fetch(url, { cache: 'no-store', referrerPolicy: 'no-referrer' })
+            );
             if (!resp.ok) throw new Error(`http_${resp.status}`);
             const blob = await resp.blob();
             return await toDataUrl(blob);
         } catch (e) {
+            console.warn(`直接获取图片失败 (${url}):`, e.message);
             // 使用后台代理再试一次
             try {
-                const res = await new Promise((resolve) => {
+                const res = await withTimeout(new Promise((resolve) => {
                     try {
-                        chrome.runtime.sendMessage({ action: 'proxyImage', url }, (reply) => resolve(reply));
-                    } catch (_) {
-                        resolve({ success: false, error: 'no_chrome_runtime' });
+                        chrome.runtime.sendMessage({ action: 'proxyImage', url }, (reply) => {
+                            resolve(reply || { success: false, error: 'no_reply' });
+                        });
+                    } catch (err) {
+                        resolve({ success: false, error: 'chrome_runtime_error: ' + err.message });
                     }
-                });
+                }), 8000);
                 if (res && res.success && res.dataUrl) return res.dataUrl;
                 throw new Error(res && res.error ? res.error : 'proxy_failed');
             } catch (e2) {

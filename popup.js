@@ -319,8 +319,6 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         storage.set(settings).then(() => {
             console.log('设置已保存:', settings);
-        }).catch((error) => {
-            console.warn('保存设置失败:', error);
         });
     }
     

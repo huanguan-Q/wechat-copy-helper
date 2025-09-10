@@ -1,22 +1,20 @@
 // 微信内容研究助手 - 后台脚本 v1.2.0
 // 该脚本负责创建右键菜单、处理通知、图片代理等后台逻辑
 
-console.log('微信内容研究助手已安装 v1.2.0');
-
-// 全局未捕获 Promise rejection 处理器
+// 全局错误捕获 - 防止 Service Worker 中的未捕获错误
 self.addEventListener('unhandledrejection', function(event) {
-  console.warn('后台脚本未捕获的 Promise rejection:', event.reason);
-  // 阻止错误显示在浏览器控制台
+  console.warn('Service Worker 捕获到未处理的 Promise rejection:', event.reason);
   event.preventDefault();
 });
 
-// 全局错误处理器
 self.addEventListener('error', function(event) {
-  if (event.error && event.error.message && event.error.message.includes('download all specified images')) {
-    console.warn('后台脚本图片下载错误已被捕获:', event.error.message);
+  if (event.message && event.message.includes('Unable to download')) {
+    console.warn('Service Worker 捕获到图片相关错误:', event.message);
     event.preventDefault();
   }
 });
+
+console.log('微信内容研究助手已安装 v1.2.0');
 
 chrome.runtime.onInstalled.addListener(() => {
   // 移除无用的右键菜单，仅保留安装通知
