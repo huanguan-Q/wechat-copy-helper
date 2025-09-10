@@ -12,11 +12,29 @@
     
     // 全局错误捕获 - 防止未捕获的异常
     window.addEventListener('error', function(event) {
-        if (event.message && event.message.includes('Unable to download')) {
-            console.warn('捕获到图片下载相关错误:', event.message);
+        const errorMsg = event.message || '';
+        if (errorMsg.includes('Unable to download') || 
+            errorMsg.includes('download all specified images') ||
+            errorMsg.includes('image') || 
+            errorMsg.includes('fetch') ||
+            errorMsg.includes('proxy')) {
+            console.warn('捕获到相关错误:', errorMsg);
             event.preventDefault();
+            return false;
         }
     });
+    
+    // 额外的错误抑制 - 覆盖可能的错误源
+    const originalConsoleError = console.error;
+    console.error = function(...args) {
+        const message = args.join(' ');
+        if (message.includes('Unable to download') || 
+            message.includes('download all specified images')) {
+            console.warn('已抑制错误输出:', message);
+            return;
+        }
+        originalConsoleError.apply(console, args);
+    };
 
     // 计算引擎：优先使用全局 wasmLoader.js 注入的 Compute，缺省回退 JS
     const Compute = (typeof window !== 'undefined' && window.Compute) ? window.Compute : (() => {
@@ -499,9 +517,12 @@
                     }
                 }), 8000);
                 if (res && res.success && res.dataUrl) return res.dataUrl;
-                throw new Error(res && res.error ? res.error : 'proxy_failed');
+                // 不抛出错误，而是返回透明图片
+                console.warn('图片代理失败，使用透明占位:', res && res.error ? res.error : 'proxy_failed');
+                return TRANSPARENT_PNG_DATA_URL;
             } catch (e2) {
-                throw e2;
+                console.warn('图片处理完全失败，使用透明占位:', e2.message);
+                return TRANSPARENT_PNG_DATA_URL;
             }
         }
     }
