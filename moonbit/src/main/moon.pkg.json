@@ -11,7 +11,11 @@
         "sanitize_filename",
         "escape_html",
         "escape_attr",
-        "ensure_wechat_cdn_params"
+        "ensure_wechat_cdn_params",
+        "normalize_image_urls_joined",
+        "sanitize_filenames_joined",
+        "escape_htmls_joined",
+        "escape_attrs_joined"
       ],
       "use-js-builtin-string": true
     }
