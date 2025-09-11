@@ -25,3 +25,12 @@ build.moon_db
 format.db
 check.moon_db
 *.output
+
+# Local moon build/check/test outputs (not for version control)
+moon_build.json
+moon_check.json
+moon_check.log
+moon_test.json
+moonbit/moon_check.log
+moonbit/moon_fmt.log
+moonbit/moon_test.log
