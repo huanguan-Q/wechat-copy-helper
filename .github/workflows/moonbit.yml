@@ -106,7 +106,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: moonbit-coverage-html
-          path: moonbit/coverage-html
+          path: ${{ github.workspace }}/moonbit/coverage-html
           if-no-files-found: error
 
       - name: Upload coverage summary artifact
@@ -114,8 +114,8 @@ jobs:
         with:
           name: moonbit-coverage-summary
           path: |
-            moonbit/coverage-summary.json
-            moonbit/coverage-summary.md
+            ${{ github.workspace }}/moonbit/coverage-summary.json
+            ${{ github.workspace }}/moonbit/coverage-summary.md
           if-no-files-found: error
 
       - name: JS batch equivalence tests
