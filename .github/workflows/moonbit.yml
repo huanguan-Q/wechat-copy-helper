@@ -95,11 +95,27 @@ jobs:
           # Generate HTML report
           moon coverage report -f html -o coverage-html || true
 
+          # Generate full-module coverage summary (including 0% files)
+          node "$GITHUB_WORKSPACE/scripts/moonbit_coverage_report.mjs" "/tmp/cov.txt" "$GITHUB_WORKSPACE/moonbit/src" "$GITHUB_WORKSPACE/moonbit/coverage-summary.json" "$GITHUB_WORKSPACE/moonbit/coverage-summary.md" || true
+
+          # Append summary table to GitHub step summary
+          echo "### MoonBit per-module coverage (full list incl. 0%)" >> "$GITHUB_STEP_SUMMARY"
+          cat "$GITHUB_WORKSPACE/moonbit/coverage-summary.md" >> "$GITHUB_STEP_SUMMARY" || true
+
       - name: Upload coverage HTML artifact
         uses: actions/upload-artifact@v4
         with:
           name: moonbit-coverage-html
           path: moonbit/coverage-html
+          if-no-files-found: error
+
+      - name: Upload coverage summary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: moonbit-coverage-summary
+          path: |
+            moonbit/coverage-summary.json
+            moonbit/coverage-summary.md
           if-no-files-found: error
 
       - name: JS batch equivalence tests

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "微信内容研究助手",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "用于学术研究和内容分析的微信公众号辅助工具，帮助研究人员更好地分析和引用内容。",
   "permissions": [
     "activeTab",
