@@ -102,6 +102,10 @@ jobs:
           path: moonbit/coverage-html
           if-no-files-found: error
 
+      - name: JS batch equivalence tests
+        working-directory: ${{ github.workspace }}/tests
+        run: npm run -s test:batch
+
       - name: Build release
         run: moon build --release
 
