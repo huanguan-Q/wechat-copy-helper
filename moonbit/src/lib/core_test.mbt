@@ -290,3 +290,130 @@ test "ensure_wechat_cdn_params - parity with normalize_image_url" {
   let url3 = "https://mmbiz.qpic.cn/a/b.png?wx_fmt=jpeg"
   assert_eq(@lib.ensure_wechat_cdn_params(url3), @lib.normalize_image_url(url3))
 }
+
+///|
+/// Result variants: Ok parity with original function
+test "normalize_result - ok parity" {
+  let url = "https://mmbiz.qpic.cn/a.png"
+  match @lib.normalize_image_url_result(url) {
+    Ok(v) => assert_eq(v, @lib.normalize_image_url(url))
+    _ => assert_eq(true, false) // unexpected Err
+  }
+}
+
+///|
+/// Result variants: Err on excessive length (4096 threshold)
+test "normalize_result - long input err" {
+  let long_tail = repeat('x', 5000)
+  let url = "https://mmbiz.qpic.cn/" + long_tail
+  match @lib.normalize_image_url_result(url) {
+    Err(e) => {
+      let s = @lib.error_to_string(e)
+      assert_eq(@lib.str_contains(s, "Performance Warning:"), true)
+      assert_eq(@lib.str_contains(s, "exceeds recommended maximum"), true)
+    }
+    _ => assert_eq(true, false) // expected PerformanceWarning
+  }
+}
+
+///|
+/// Result variants: Ok parity for decide_referrer_policy
+test "policy_result - ok parity" {
+  let url = "https://example.com/a.png"
+  match @lib.decide_referrer_policy_result(url) {
+    Ok(v) => assert_eq(v, @lib.decide_referrer_policy(url))
+    _ => assert_eq(true, false)
+  }
+}
+
+///|
+/// Result variants: Err on excessive length (4096 threshold)
+test "policy_result - long input err" {
+  let long_tail = repeat('x', 5000)
+  let url = "https://example.com/" + long_tail
+  match @lib.decide_referrer_policy_result(url) {
+    Err(e) => {
+      let s = @lib.error_to_string(e)
+      assert_eq(@lib.str_contains(s, "Performance Warning:"), true)
+      assert_eq(@lib.str_contains(s, "exceeds recommended maximum"), true)
+    }
+    _ => assert_eq(true, false)
+  }
+}
+
+///|
+/// Result variants: Err on excessive length (4096 threshold)
+test "sanitize_result - long input err" {
+  let very_long = repeat('x', 5000)
+  match @lib.sanitize_filename_result(very_long) {
+    Err(e) => {
+      let s = @lib.error_to_string(e)
+      assert_eq(@lib.str_contains(s, "Performance Warning:"), true)
+      assert_eq(@lib.str_contains(s, "exceeds recommended maximum"), true)
+    }
+    _ => assert_eq(true, false)
+  }
+}
+
+///|
+/// Result variants: Err on excessive length (8192 threshold)
+test "escape_html_result - long input err" {
+  let very_long = repeat('x', 9000)
+  match @lib.escape_html_result(very_long) {
+    Err(e) => {
+      let s = @lib.error_to_string(e)
+      assert_eq(@lib.str_contains(s, "Performance Warning:"), true)
+      assert_eq(@lib.str_contains(s, "exceeds recommended maximum"), true)
+    }
+    _ => assert_eq(true, false)
+  }
+}
+
+///|
+/// Result variants: Err on excessive length (4096 threshold)
+test "ensure_wechat_cdn_params_result - long input err" {
+  let long_tail = repeat('x', 5000)
+  let url = "https://mmbiz.qpic.cn/" + long_tail
+  match @lib.ensure_wechat_cdn_params_result(url) {
+    Err(e) => {
+      let s = @lib.error_to_string(e)
+      assert_eq(@lib.str_contains(s, "Performance Warning:"), true)
+      assert_eq(@lib.str_contains(s, "exceeds recommended maximum"), true)
+    }
+    _ => assert_eq(true, false)
+  }
+}
+
+///|
+/// Result variants: Ok parity for escape_attr
+test "escape_attr_result - ok parity" {
+  let input = "Tom's \"hat\" & <tag>"
+  match @lib.escape_attr_result(input) {
+    Ok(v) => assert_eq(v, @lib.escape_attr(input))
+    _ => assert_eq(true, false)
+  }
+}
+
+///|
+/// Result variants: Err on excessive length (8192 threshold)
+test "escape_attr_result - long input err" {
+  let very_long = repeat('x', 9000)
+  match @lib.escape_attr_result(very_long) {
+    Err(e) => {
+      let s = @lib.error_to_string(e)
+      assert_eq(@lib.str_contains(s, "Performance Warning:"), true)
+      assert_eq(@lib.str_contains(s, "exceeds recommended maximum"), true)
+    }
+    _ => assert_eq(true, false)
+  }
+}
+
+///|
+/// Result variants: Ok parity for ensure_wechat_cdn_params
+test "ensure_wechat_cdn_params_result - ok parity" {
+  let url = "https://mmbiz.qpic.cn/a/b.png?tp=webp"
+  match @lib.ensure_wechat_cdn_params_result(url) {
+    Ok(v) => assert_eq(v, @lib.ensure_wechat_cdn_params(url))
+    _ => assert_eq(true, false)
+  }
+}

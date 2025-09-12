@@ -32,7 +32,7 @@ enum CoreError {
 
 ///|
 /// Convert error to string representation
-fn error_to_string(error : CoreError) -> String {
+pub fn error_to_string(error : CoreError) -> String {
   match error {
     InvalidInput(msg) => "Invalid Input: " + msg
     ProcessingError(msg) => "Processing Error: " + msg

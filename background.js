@@ -1,7 +1,7 @@
-// 微信内容研究助手 - 后台脚本 v1.2.0
+// 微信文档归档助手 - 后台脚本 v1.2.0
 // 该脚本负责创建右键菜单、处理通知、图片代理等后台逻辑
 
-console.log('微信内容研究助手已安装 v1.2.0');
+console.log('微信文档归档助手已安装 v1.2.0');
 
 // 新增：生成 128x128 通知图标（Service Worker 环境使用 OffscreenCanvas）
 async function generate_notification_icon_data_url() {
@@ -88,7 +88,7 @@ chrome.runtime.onInstalled.addListener(() => {
   const options = {
     type: 'basic',
     iconUrl: chrome.runtime.getURL('icon128.svg'),
-    title: '微信内容研究助手',
+    title: '微信文档归档助手',
     message: '扩展已安装，点击工具栏图标开始使用。'
   };
 
