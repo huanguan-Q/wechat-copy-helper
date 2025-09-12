@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "微信内容研究助手",
   "version": "1.3.0",
-  "description": "用于学术研究和内容分析的微信公众号辅助工具，帮助研究人员更好地分析和引用内容。",
+  "description": "用于提升个人与团队的整理与归档效率，在公众号文章页提供更顺手的复制与整理体验。",
   "permissions": [
     "activeTab",
     "storage",
