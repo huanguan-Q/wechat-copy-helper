@@ -7,7 +7,8 @@
     "test:e2e": "node e2e-test.js",
     "test:e2e:headless": "HEADLESS=true node e2e-test.js",
     "test:install": "npm install puppeteer --save-dev",
-    "test:setup": "mkdir -p screenshots && npm run test:install"
+    "test:setup": "mkdir -p screenshots && npm run test:install",
+    "test:batch": "node batch_equivalence.js"
   },
   "engines": {
     "node": ">=16.0.0"

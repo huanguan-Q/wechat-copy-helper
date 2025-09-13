@@ -1,5 +1,5 @@
 /**
- * 端到端测试 - 微信内容研究助手
+ * 端到端测试 - 微信文档归档助手
  * 
  * 测试扩展的核心功能：图片复制、文字复制、设置管理等
  * 使用 Puppeteer 进行自动化测试
@@ -277,7 +277,7 @@ async function testPerformance(browser) {
  * 主测试函数
  */
 async function runTests() {
-  console.log('🚀 开始端到端测试 - 微信内容研究助手');
+  console.log('🚀 开始端到端测试 - 微信文档归档助手');
   console.log('='.repeat(50));
   
   let browser;

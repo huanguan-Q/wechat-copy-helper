@@ -205,6 +205,72 @@
       if (r1 != null && r1 !== '') return r1;
       const r2 = memoryFns.ensureWechatCdnParams && memoryFns.ensureWechatCdnParams(u);
       return (r2 != null && r2 !== '') ? r2 : js.ensureWechatCdnParams(u);
+    },
+    // ===== Batch helpers (array in, array out) =====
+    // Prefer future WASM joined-APIs if present; otherwise map over scalar functions
+    normalizeImageUrls(list){
+      try {
+        if (!Array.isArray(list)) return [];
+        const w = state && state.wasm;
+        const fn = w && (w.normalize_image_urls_joined || w["normalize_image_urls_joined"]);
+        if (fn && typeof fn === 'function') {
+          const SEP = '\u0001';
+          try {
+            const joined = list.map(x => String(x ?? '')).join(SEP);
+            const out = fn.length >= 2 ? fn(joined, SEP) : fn(joined);
+            if (typeof out === 'string') return out.split(SEP);
+          } catch (_e) { /* fallthrough */ }
+        }
+      } catch (_err) { /* ignore and fallback */ }
+      return list.map(u => this.normalizeImageUrl(u));
+    },
+    sanitizeFilenames(list){
+      try {
+        if (!Array.isArray(list)) return [];
+        const w = state && state.wasm;
+        const fn = w && (w.sanitize_filenames_joined || w["sanitize_filenames_joined"]);
+        if (fn && typeof fn === 'function') {
+          const SEP = '\u0001';
+          try {
+            const joined = list.map(x => String(x ?? '')).join(SEP);
+            const out = fn.length >= 2 ? fn(joined, SEP) : fn(joined);
+            if (typeof out === 'string') return out.split(SEP);
+          } catch (_e) { /* fallthrough */ }
+        }
+      } catch (_err) { /* ignore and fallback */ }
+      return list.map(n => this.sanitizeFilename(n));
+    },
+    escapeHtmls(list){
+      try {
+        if (!Array.isArray(list)) return [];
+        const w = state && state.wasm;
+        const fn = w && (w.escape_htmls_joined || w["escape_htmls_joined"]);
+        if (fn && typeof fn === 'function') {
+          const SEP = '\u0001';
+          try {
+            const joined = list.map(x => String(x ?? '')).join(SEP);
+            const out = fn.length >= 2 ? fn(joined, SEP) : fn(joined);
+            if (typeof out === 'string') return out.split(SEP);
+          } catch (_e) { /* fallthrough */ }
+        }
+      } catch (_err) { /* ignore and fallback */ }
+      return list.map(s => this.escapeHtml(s));
+    },
+    escapeAttrs(list){
+      try {
+        if (!Array.isArray(list)) return [];
+        const w = state && state.wasm;
+        const fn = w && (w.escape_attrs_joined || w["escape_attrs_joined"]);
+        if (fn && typeof fn === 'function') {
+          const SEP = '\u0001';
+          try {
+            const joined = list.map(x => String(x ?? '')).join(SEP);
+            const out = fn.length >= 2 ? fn(joined, SEP) : fn(joined);
+            if (typeof out === 'string') return out.split(SEP);
+          } catch (_e) { /* fallthrough */ }
+        }
+      } catch (_err) { /* ignore and fallback */ }
+      return list.map(s => this.escapeAttr(s));
     }
   };
 

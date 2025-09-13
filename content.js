@@ -2,39 +2,6 @@
 
 (function() {
     'use strict';
-    
-    // 全局错误捕获 - 防止未捕获的 Promise rejection
-    window.addEventListener('unhandledrejection', function(event) {
-        console.warn('捕获到未处理的 Promise rejection:', event.reason);
-        // 阻止浏览器显示错误
-        event.preventDefault();
-    });
-    
-    // 全局错误捕获 - 防止未捕获的异常
-    window.addEventListener('error', function(event) {
-        const errorMsg = event.message || '';
-        if (errorMsg.includes('Unable to download') || 
-            errorMsg.includes('download all specified images') ||
-            errorMsg.includes('image') || 
-            errorMsg.includes('fetch') ||
-            errorMsg.includes('proxy')) {
-            console.warn('捕获到相关错误:', errorMsg);
-            event.preventDefault();
-            return false;
-        }
-    });
-    
-    // 额外的错误抑制 - 覆盖可能的错误源
-    const originalConsoleError = console.error;
-    console.error = function(...args) {
-        const message = args.join(' ');
-        if (message.includes('Unable to download') || 
-            message.includes('download all specified images')) {
-            console.warn('已抑制错误输出:', message);
-            return;
-        }
-        originalConsoleError.apply(console, args);
-    };
 
     // 计算引擎：优先使用全局 wasmLoader.js 注入的 Compute，缺省回退 JS
     const Compute = (typeof window !== 'undefined' && window.Compute) ? window.Compute : (() => {
@@ -89,6 +56,9 @@
         const images = document.querySelectorAll('img');
         console.log('找到图片数量:', images.length);
         
+        // 批量规范化：先收集，稍后统一处理
+        const pendingNormalize = [];
+        
         images.forEach((img, index) => {
             // 跳过已处理的图片
             if (img.dataset.wechatProcessed) {
@@ -112,15 +82,10 @@
                     img.setAttribute('referrerpolicy', policy);
                 }
                 
-                // 检查图片是否需要修复URL（交由 Compute 统一处理）
-                const currentSrc = img.src;
+                // 统一放入批处理，在循环结束后一次性规范化
                 if (!img.dataset.urlFixed) {
                     img.dataset.urlFixed = 'true';
-                    const newSrc = Compute.normalizeImageUrl(currentSrc);
-                    if (newSrc && newSrc !== currentSrc) {
-                        console.log('修复图片URL:', currentSrc, '->', newSrc);
-                        img.src = newSrc;
-                    }
+                    pendingNormalize.push(img);
                 }
             }
             
@@ -155,6 +120,40 @@
                 }, { once: true });
             }
         });
+
+        // 结束单图遍历后，执行批量 URL 规范化并回填
+        if (pendingNormalize.length) {
+            try {
+                const srcList = pendingNormalize.map(img => img.src || '');
+                const normalized = (Compute.normalizeImageUrls
+                    ? Compute.normalizeImageUrls(srcList)
+                    : srcList.map(u => Compute.normalizeImageUrl(u)));
+                for (let i = 0; i < pendingNormalize.length; i++) {
+                    const img = pendingNormalize[i];
+                    const oldSrc = img.src;
+                    const newSrc = normalized[i] || oldSrc;
+                    if (newSrc && newSrc !== oldSrc) {
+                        console.log('修复图片URL:', oldSrc, '->', newSrc);
+                        img.src = newSrc;
+                    }
+                    // 根据最新的 URL 再设置一次 policy（幂等）
+                    const policy2 = Compute.decideReferrerPolicy(newSrc || oldSrc);
+                    if (!img.getAttribute('referrerpolicy')) {
+                        img.setAttribute('referrerpolicy', policy2);
+                    }
+                }
+            } catch (e) {
+                console.warn('批量规范化失败，回退逐元素处理:', e);
+                pendingNormalize.forEach(img => {
+                    const currentSrc = img.src;
+                    const newSrc = Compute.normalizeImageUrl(currentSrc);
+                    if (newSrc && newSrc !== currentSrc) {
+                        console.log('修复图片URL:', currentSrc, '->', newSrc);
+                        img.src = newSrc;
+                    }
+                });
+            }
+        }
     }
 
     // 移除复制限制
@@ -474,55 +473,33 @@
 
     // 将图片URL获取为 data:URL，失败时抛出错误；内部带有后台代理兜底
     async function fetchImageAsDataUrlWithProxy(url) {
-        // 添加超时包装函数
-        const withTimeout = (promise, timeoutMs = 10000) => {
-            return Promise.race([
-                promise,
-                new Promise((_, reject) => 
-                    setTimeout(() => reject(new Error('timeout')), timeoutMs)
-                )
-            ]);
-        };
-        
         const toDataUrl = (blob) => new Promise((resolve, reject) => {
-            try {
-                const reader = new FileReader();
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = () => reject(new Error('FileReader failed'));
-                reader.readAsDataURL(blob);
-            } catch (e) {
-                reject(e);
-            }
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
         });
 
         // 先直接抓取
         try {
-            const resp = await withTimeout(
-                fetch(url, { cache: 'no-store', referrerPolicy: 'no-referrer' })
-            );
+            const resp = await fetch(url, { cache: 'no-store', referrerPolicy: 'no-referrer' });
             if (!resp.ok) throw new Error(`http_${resp.status}`);
             const blob = await resp.blob();
             return await toDataUrl(blob);
         } catch (e) {
-            console.warn(`直接获取图片失败 (${url}):`, e.message);
             // 使用后台代理再试一次
             try {
-                const res = await withTimeout(new Promise((resolve) => {
+                const res = await new Promise((resolve) => {
                     try {
-                        chrome.runtime.sendMessage({ action: 'proxyImage', url }, (reply) => {
-                            resolve(reply || { success: false, error: 'no_reply' });
-                        });
-                    } catch (err) {
-                        resolve({ success: false, error: 'chrome_runtime_error: ' + err.message });
+                        chrome.runtime.sendMessage({ action: 'proxyImage', url }, (reply) => resolve(reply));
+                    } catch (_) {
+                        resolve({ success: false, error: 'no_chrome_runtime' });
                     }
-                }), 8000);
+                });
                 if (res && res.success && res.dataUrl) return res.dataUrl;
-                // 不抛出错误，而是返回透明图片
-                console.warn('图片代理失败，使用透明占位:', res && res.error ? res.error : 'proxy_failed');
-                return TRANSPARENT_PNG_DATA_URL;
+                throw new Error(res && res.error ? res.error : 'proxy_failed');
             } catch (e2) {
-                console.warn('图片处理完全失败，使用透明占位:', e2.message);
-                return TRANSPARENT_PNG_DATA_URL;
+                throw e2;
             }
         }
     }
@@ -533,22 +510,28 @@
         tempDiv.innerHTML = htmlContent;
         
         const images = Array.from(tempDiv.querySelectorAll('img'));
-        
-        // 使用 Promise.allSettled 确保单个图片失败不会影响整体处理
-        const imagePromises = images.map(async (img, index) => {
-            try {
-                // 统一拿到原始URL
-                let src = img.getAttribute('src') || img.getAttribute('data-src') || (img.dataset ? img.dataset.src : '');
-                if (!src) {
-                    // 无法确定来源，直接替换占位文本
-                    const placeholder = document.createElement('span');
-                    placeholder.textContent = '[图片缺失]';
-                    img.replaceWith(placeholder);
-                    return { index, success: false, reason: 'no_src' };
-                }
+        // 1) 批量准备原始 src 列表
+        const originalSrcs = images.map(img => (
+            img.getAttribute('src') || img.getAttribute('data-src') || (img.dataset ? img.dataset.src : '') || ''
+        ));
+        // 2) 批量规范化 URL（优先 MoonBit 批处理接口）
+        const normalizedSrcs = (Compute.normalizeImageUrls
+            ? Compute.normalizeImageUrls(originalSrcs)
+            : originalSrcs.map(s => Compute.normalizeImageUrl(s)));
 
-                // 统一规范化URL
-                src = Compute.normalizeImageUrl(src);
+        // 3) 逐一抓取并回填 data:URL（网络 IO 仍然逐项执行以避免突发并发）
+        for (let i = 0; i < images.length; i++) {
+            const img = images[i];
+            const src0 = originalSrcs[i];
+            if (!src0) {
+                // 无法确定来源，直接替换占位文本
+                const placeholder = document.createElement('span');
+                placeholder.textContent = '[图片缺失]';
+                img.replaceWith(placeholder);
+                continue;
+            }
+            try {
+                const src = normalizedSrcs[i] || src0;
                 const dataUrl = await fetchImageAsDataUrlWithProxy(src);
                 // 写回 data:URL，并清理无关属性
                 img.setAttribute('src', dataUrl);
@@ -557,24 +540,12 @@
                 img.removeAttribute('crossorigin');
                 img.setAttribute('referrerpolicy', 'no-referrer');
                 if (!img.alt) img.alt = '[图片]';
-                return { index, success: true };
             } catch (e) {
-                console.warn(`图片 ${index} 处理失败:`, e.message);
                 // 拉取失败：使用透明占位，并给出文字提示
                 img.setAttribute('src', TRANSPARENT_PNG_DATA_URL);
                 img.setAttribute('data-inline-failed', 'true');
                 if (!img.alt) img.alt = '[图片不可用]';
-                return { index, success: false, reason: e.message };
             }
-        });
-        
-        // 等待所有图片处理完成，不管成功还是失败
-        const results = await Promise.allSettled(imagePromises);
-        const successCount = results.filter(r => r.status === 'fulfilled' && r.value.success).length;
-        const totalCount = images.length;
-        
-        if (totalCount > 0) {
-            console.log(`图片处理完成: ${successCount}/${totalCount} 成功`);
         }
         
         return tempDiv.innerHTML;
@@ -597,20 +568,46 @@
         return String(str || '').replace(/[&<>"']/g, (s) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[s]));
     }
     function escapeAttr(str) {
-        return escapeHtml(str).replace(/"/g, '&quot;');
+        return escapeHtml(str).replace(/\"/g, '&quot;');
+    }
+    // 批量转义辅助（优先 Compute 批量）
+    function escapeHtmlBatch(arr) {
+        try {
+            if (Compute && typeof Compute.escapeHtmls === 'function') {
+                return Compute.escapeHtmls(arr);
+            }
+        } catch (_) {}
+        return arr.map((s) => escapeHtml(s));
+    }
+    function escapeAttrBatch(arr) {
+        try {
+            if (Compute && typeof Compute.escapeAttrs === 'function') {
+                return Compute.escapeAttrs(arr);
+            }
+        } catch (_) {}
+        return arr.map((s) => escapeAttr(s));
     }
     function buildMetaHtml(meta) {
         const { title, author, account, time, url } = meta;
+        // 统一批量转义，减少 JS↔WASM 往返
+        const [authorE, accountE, timeE, titleE, urlTextE] = escapeHtmlBatch([
+            author || '',
+            account || '',
+            time || '',
+            title || '',
+            url || ''
+        ]);
+        const [urlAttrE] = escapeAttrBatch([url || '']);
         const parts = [];
-        if (author) parts.push(`作者：${escapeHtml(author)}`);
-        if (account) parts.push(`公众号：${escapeHtml(account)}`);
-        if (time) parts.push(`时间：${escapeHtml(time)}`);
-        if (url) parts.push(`来源：<a href="${escapeAttr(url)}">${escapeHtml(url)}</a>`);
+        if (author) parts.push(`作者：${authorE}`);
+        if (account) parts.push(`公众号：${accountE}`);
+        if (time) parts.push(`时间：${timeE}`);
+        if (url) parts.push(`来源：<a href=\"${urlAttrE}\">${urlTextE}</a>`);
         const metaLine = parts.join('　');
         return `
-<div class="wechat-copy-meta" style="border-bottom:1px solid #eee;margin-bottom:12px;">
-  ${title ? `<h1 style="margin:0 0 8px;font-size:22px;line-height:1.4;">${escapeHtml(title)}</h1>` : ''}
-  <div style="color:#666;font-size:14px;">${metaLine}</div>
+<div class=\"wechat-copy-meta\" style=\"border-bottom:1px solid #eee;margin-bottom:12px;\">
+  ${title ? `<h1 style=\"margin:0 0 8px;font-size:22px;line-height:1.4;\">${titleE}</h1>` : ''}
+  <div style=\"color:#666;font-size:14px;\">${metaLine}</div>
 </div>`;
     }
     function buildMetaText(meta) {

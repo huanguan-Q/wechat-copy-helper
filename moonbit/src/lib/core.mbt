@@ -250,3 +250,74 @@ pub fn escape_attr(input : String) -> String {
 pub fn ensure_wechat_cdn_params(input : String) -> String {
   normalize_image_url(input)
 }
+
+///|
+/// Result-based variant of normalize_image_url with input validation.
+/// Returns Ok(normalized_url) on success; Err(CoreError) when input exceeds safe length.
+pub fn normalize_image_url_result(input : String) -> Result[String, CoreError] {
+  let max_len : Int = 4096
+  match validate_string_input("normalize_image_url_result", input, max_len) {
+    Ok(_) => Ok(normalize_image_url(input))
+    Err(e) => Err(e)
+  }
+}
+
+///|
+/// Result-based variant of decide_referrer_policy with input validation.
+/// Returns Ok(policy) on success; Err(CoreError) when input exceeds safe length.
+pub fn decide_referrer_policy_result(
+  input : String,
+) -> Result[String, CoreError] {
+  let max_len : Int = 4096
+  match validate_string_input("decide_referrer_policy_result", input, max_len) {
+    Ok(_) => Ok(decide_referrer_policy(input))
+    Err(e) => Err(e)
+  }
+}
+
+///|
+/// Result-based variant of sanitize_filename with input validation.
+/// Returns Ok(sanitized) on success; Err(CoreError) when input exceeds safe length.
+pub fn sanitize_filename_result(name : String) -> Result[String, CoreError] {
+  let max_len : Int = 4096
+  match validate_string_input("sanitize_filename_result", name, max_len) {
+    Ok(_) => Ok(sanitize_filename(name))
+    Err(e) => Err(e)
+  }
+}
+
+///|
+/// Result-based variant of escape_html with input validation.
+/// Returns Ok(escaped) on success; Err(CoreError) when input exceeds safe length.
+pub fn escape_html_result(input : String) -> Result[String, CoreError] {
+  let max_len : Int = 8192
+  match validate_string_input("escape_html_result", input, max_len) {
+    Ok(_) => Ok(escape_html(input))
+    Err(e) => Err(e)
+  }
+}
+
+///|
+/// Result-based variant of escape_attr with input validation.
+/// Returns Ok(escaped) on success; Err(CoreError) when input exceeds safe length.
+pub fn escape_attr_result(input : String) -> Result[String, CoreError] {
+  let max_len : Int = 8192
+  match validate_string_input("escape_attr_result", input, max_len) {
+    Ok(_) => Ok(escape_attr(input))
+    Err(e) => Err(e)
+  }
+}
+
+///|
+/// Result-based alias of ensure_wechat_cdn_params with input validation.
+/// Returns Ok(result) on success; Err(CoreError) when input exceeds safe length.
+pub fn ensure_wechat_cdn_params_result(
+  input : String,
+) -> Result[String, CoreError] {
+  let max_len : Int = 4096
+  match
+    validate_string_input("ensure_wechat_cdn_params_result", input, max_len) {
+    Ok(_) => Ok(ensure_wechat_cdn_params(input))
+    Err(e) => Err(e)
+  }
+}
